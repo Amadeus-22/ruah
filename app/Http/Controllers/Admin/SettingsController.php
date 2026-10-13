@@ -9,6 +9,7 @@ use App\Models\Setting;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /** Horários de atendimento, bloqueios e regras da agenda. */
@@ -20,6 +21,7 @@ class SettingsController extends Controller
             'rules' => AvailabilityRule::query()->orderBy('weekday')->orderBy('starts_at')->get()->groupBy('weekday'),
             'blocks' => Block::query()->where('ends_at', '>=', now())->orderBy('starts_at')->get(),
             'settings' => collect(Setting::DEFAULTS)->map(fn ($default, $key) => Setting::get($key)),
+            'feedToken' => Setting::get('calendar_feed_token'),
         ]);
     }
 
@@ -40,6 +42,14 @@ class SettingsController extends Controller
         Setting::put('no_show_uses_session', $request->boolean('no_show_uses_session') ? '1' : '0');
 
         return back()->with('ok', 'Configurações salvas.');
+    }
+
+    /** Cria o link da agenda para o celular; criar de novo invalida o anterior. */
+    public function newFeedLink(): RedirectResponse
+    {
+        Setting::put('calendar_feed_token', Str::random(40));
+
+        return back()->with('ok', 'Link da agenda criado. O link anterior, se existia, parou de funcionar.');
     }
 
     public function addRule(Request $request): RedirectResponse

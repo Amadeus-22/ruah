@@ -50,14 +50,17 @@ Os serviços, valores e horários do seed são exemplos, para validar o fluxo.
 | `app/Scheduling/SlotFinder.php` | A regra dos horários livres. Não lê banco nem relógio; é testada sozinha. |
 | `app/Scheduling/Schedule.php` | Junta atendimentos, bloqueios e o calendário e consulta o `SlotFinder`. |
 | `app/Scheduling/Booking.php` | O ciclo do agendamento: pedido, confirmação, realizado, falta, cancelamento; desconta as sessões do pacote. |
-| `app/Calendar/` | A ligação com o calendário do celular. Hoje é `NullCalendar` (nada ligado). |
+| `app/Calendar/` | `IcsFeed`: agenda que o celular assina, só de leitura (link criado em Configurações). `CalendarGateway` é a porta para uma ligação de duas vias; hoje é `NullCalendar`. |
 
 ## O que falta
 
-- **Sincronizar com o calendário do iPhone** (iCloud, por CalDAV): implementar
-  `CalendarGateway`. Enquanto isso, compromissos pessoais entram como bloqueio.
+- **Ler o calendário do iPhone** (iCloud, por CalDAV): implementar `CalendarGateway`.
+  O sistema já aparece no celular por assinatura, mas o caminho de volta não existe;
+  compromissos pessoais entram como bloqueio.
 - Trocar os dados de exemplo pelos reais e definir a senha do painel.
-- Aviso para a profissional quando chega um pedido; lembrete automático ao paciente.
+- Aviso para a profissional quando chega um pedido. O lembrete ao paciente é enviado por ela,
+  com um toque, na Agenda do dia; envio sem ela precisa da API oficial do WhatsApp.
+- Revisar o texto de `/privacidade` com ela antes de publicar.
 - Emissão da nota fiscal pelo sistema (hoje ele só guarda o número da nota emitida na prefeitura).
 - Criar o contato no quadro sozinho quando alguém chama no WhatsApp (precisa da API oficial).
 - Termo de privacidade (LGPD), hospedagem e domínio.

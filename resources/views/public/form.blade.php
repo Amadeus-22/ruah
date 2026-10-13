@@ -30,7 +30,7 @@
         </div>
         <label class="check">
             <input type="checkbox" name="consent" value="1" @checked(old('consent')) required>
-            <span>Concordo que estes dados sejam usados para marcar e confirmar o atendimento.</span>
+            <span>Concordo que estes dados sejam usados para marcar e confirmar o atendimento. <a href="{{ route('public.privacy') }}" target="_blank" rel="noopener">Como os dados são usados</a></span>
         </label>
         <button class="btn block">Enviar pedido de horário</button>
         <p class="muted small">O horário fica reservado e é confirmado pela profissional.</p>

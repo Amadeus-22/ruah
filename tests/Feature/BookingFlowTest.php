@@ -6,6 +6,7 @@ use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
 use App\Models\AvailabilityRule;
 use App\Models\Block;
+use App\Models\Inquiry;
 use App\Models\Package;
 use App\Models\Patient;
 use App\Models\PatientPackage;
@@ -200,7 +201,7 @@ class BookingFlowTest extends TestCase
 
         $this->actingAs($user)->post('/painel/contatos', ['guardian_name' => 'Dora', 'patient_name' => 'Elis', 'phone' => '21 98888-7777', 'channel' => 'instagram'])
             ->assertSessionHas('ok');
-        $inquiry = \App\Models\Inquiry::query()->firstOrFail();
+        $inquiry = Inquiry::query()->firstOrFail();
         $this->assertSame('new', $inquiry->stage);
 
         $this->actingAs($user)->post("/painel/contatos/{$inquiry->id}/etapa/waiting");
@@ -222,7 +223,7 @@ class BookingFlowTest extends TestCase
     public function test_a_contact_cannot_be_moved_to_an_unknown_stage(): void
     {
         $user = User::factory()->create();
-        $inquiry = \App\Models\Inquiry::create(['guardian_name' => 'Dora']);
+        $inquiry = Inquiry::create(['guardian_name' => 'Dora']);
 
         $this->actingAs($user)->post("/painel/contatos/{$inquiry->id}/etapa/feito")->assertNotFound();
     }
@@ -263,5 +264,61 @@ class BookingFlowTest extends TestCase
         $this->assertStringContainsString('NF-101', $csv);
         $this->assertStringContainsString('150,00', $csv);
         $this->assertNotNull($later);
+    }
+
+    public function test_calendar_feed_needs_the_secret_link_and_lists_what_holds_a_slot(): void
+    {
+        $user = User::factory()->create();
+        $booking = app(Booking::class);
+        $patient = $this->patient();
+        $kept = $booking->book($patient, $this->service, $this->monday->setTime(8, 0), AppointmentStatus::Confirmed);
+        $canceled = $booking->book($patient, $this->service, $this->monday->setTime(10, 0), AppointmentStatus::Confirmed);
+        $booking->cancel($canceled);
+
+        $this->get('/agenda/'.str_repeat('a', 40).'.ics')->assertNotFound(); // ainda não existe link
+
+        $this->actingAs($user)->post('/painel/configuracoes/agenda-celular')->assertSessionHas('ok');
+        $token = Setting::get('calendar_feed_token');
+        $this->assertSame(40, strlen($token));
+        auth()->logout();
+
+        $this->get('/agenda/'.str_repeat('a', 40).'.ics')->assertNotFound();
+        $ics = $this->get("/agenda/{$token}.ics")->assertOk()->assertHeader('Content-Type', 'text/calendar; charset=utf-8')->getContent();
+
+        $this->assertStringContainsString("UID:agendamento-{$kept->id}@agenda-fisio", $ics);
+        $this->assertStringNotContainsString("UID:agendamento-{$canceled->id}@", $ics);
+        $this->assertStringContainsString('DTSTART:'.gmdate('Ymd\THis\Z', $kept->starts_at->getTimestamp()), $ics);
+        $this->assertStringContainsString('SUMMARY:Bento · Sessão de RTA', $ics);
+        foreach (explode("\r\n", $ics) as $line) {
+            $this->assertLessThanOrEqual(75, strlen($line));
+        }
+
+        // Trocar o link derruba o antigo.
+        $this->actingAs($user)->post('/painel/configuracoes/agenda-celular');
+        auth()->logout();
+        $this->get("/agenda/{$token}.ics")->assertNotFound();
+    }
+
+    public function test_reminder_is_listed_for_tomorrow_and_leaves_the_list_once_sent(): void
+    {
+        $user = User::factory()->create();
+        $appointment = app(Booking::class)->book($this->patient(), $this->service, $this->monday->setTime(8, 0), AppointmentStatus::Confirmed);
+
+        // Hoje é domingo; o atendimento é amanhã.
+        $page = $this->actingAs($user)->get('/painel/agenda')->assertOk()->assertSee('Lembretes para enviar');
+        $this->assertTrue($page->viewData('reminders')->contains($appointment));
+
+        $response = $this->actingAs($user)->post("/painel/agendamentos/{$appointment->id}/lembrete");
+        $target = $response->headers->get('Location');
+        $this->assertStringStartsWith('https://wa.me/5521999990000?text=', $target);
+        $this->assertStringContainsString(rawurlencode('amanhã às 08:00'), $target);
+        $this->assertNotNull($appointment->refresh()->reminded_at);
+
+        $this->assertTrue($this->actingAs($user)->get('/painel/agenda')->viewData('reminders')->isEmpty());
+    }
+
+    public function test_privacy_page_is_public(): void
+    {
+        $this->get('/privacidade')->assertOk()->assertSee('não guarda prontuário');
     }
 }

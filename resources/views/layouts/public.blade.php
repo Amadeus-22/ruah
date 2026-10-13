@@ -18,6 +18,7 @@
     @if (\App\Models\Setting::get('clinic_address'))
         {{ \App\Models\Setting::get('clinic_address') }}
     @endif
+    <div><a href="{{ route('public.privacy') }}">Privacidade</a></div>
 </footer>
 </body>
 </html>

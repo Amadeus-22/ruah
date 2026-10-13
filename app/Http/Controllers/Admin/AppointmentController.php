@@ -100,6 +100,15 @@ class AppointmentController extends Controller
         return back()->with('ok', 'Agendamento atualizado.');
     }
 
+    /** Marca o lembrete como enviado e abre o WhatsApp com a mensagem pronta. */
+    public function remind(Appointment $appointment): RedirectResponse
+    {
+        abort_unless($appointment->status === AppointmentStatus::Confirmed, 404);
+        $appointment->update(['reminded_at' => now()]);
+
+        return redirect()->away($appointment->reminderLink());
+    }
+
     public function update(Request $request, Appointment $appointment): RedirectResponse
     {
         $data = $request->validate([

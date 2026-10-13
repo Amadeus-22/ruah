@@ -33,6 +33,12 @@ class DashboardController extends Controller
                 ->where('status', AppointmentStatus::Confirmed)
                 ->where('ends_at', '<', CarbonImmutable::now())
                 ->orderBy('starts_at')->get(),
+            // Confirmados até o fim de amanhã que ainda não receberam lembrete.
+            'reminders' => Appointment::query()->with($with)
+                ->where('status', AppointmentStatus::Confirmed)
+                ->whereNull('reminded_at')
+                ->whereBetween('starts_at', [CarbonImmutable::now(), $today->addDays(2)])
+                ->orderBy('starts_at')->get(),
             'endingPackages' => PatientPackage::query()->with(['patient', 'package'])
                 ->whereRaw('sessions_total - sessions_used between 1 and 2')
                 ->get(),

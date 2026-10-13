@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\CalendarFeedController;
 use App\Http\Controllers\PublicBookingController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,11 @@ Route::get('/agendar/{service}', [PublicBookingController::class, 'slots'])->nam
 Route::get('/agendar/{service}/dados', [PublicBookingController::class, 'form'])->name('public.form');
 Route::post('/agendar/{service}', [PublicBookingController::class, 'store'])->middleware('throttle:10,1')->name('public.store');
 Route::get('/pedido/{token}', [PublicBookingController::class, 'show'])->name('public.show');
+
+Route::view('/privacidade', 'public.privacy')->name('public.privacy');
+
+// Agenda para o celular assinar; o código no link é o que dá acesso.
+Route::get('/agenda/{token}.ics', CalendarFeedController::class)->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('calendar.feed');
 
 Route::get('/entrar', [AuthController::class, 'form'])->name('login');
 Route::post('/entrar', [AuthController::class, 'login'])->middleware('throttle:6,1');
@@ -31,6 +37,7 @@ Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
 
     Route::get('/agendamentos/novo', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('/agendamentos', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::post('/agendamentos/{appointment}/lembrete', [AppointmentController::class, 'remind'])->name('appointments.remind');
     Route::post('/agendamentos/{appointment}/{action}', [AppointmentController::class, 'action'])->name('appointments.action');
     Route::put('/agendamentos/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
 
@@ -49,6 +56,7 @@ Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
 
     Route::get('/configuracoes', [SettingsController::class, 'index'])->name('settings');
     Route::post('/configuracoes', [SettingsController::class, 'save'])->name('settings.save');
+    Route::post('/configuracoes/agenda-celular', [SettingsController::class, 'newFeedLink'])->name('settings.feed');
     Route::post('/horarios', [SettingsController::class, 'addRule'])->name('rules.add');
     Route::delete('/horarios/{rule}', [SettingsController::class, 'removeRule'])->name('rules.remove');
     Route::post('/bloqueios', [SettingsController::class, 'addBlock'])->name('blocks.add');

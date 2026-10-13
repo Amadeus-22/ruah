@@ -32,7 +32,7 @@
     </div>
 
     <h2>Bloqueios</h2>
-    <p class="muted small">Compromissos pessoais, folgas, férias. Enquanto a agenda do celular não está ligada ao sistema, é aqui que você fecha um horário.</p>
+    <p class="muted small">Compromissos pessoais, folgas, férias. O sistema não lê a agenda do celular; é aqui que você fecha um horário.</p>
     <div class="card">
         @forelse ($blocks as $block)
             <div class="row between" style="padding:.3rem 0">
@@ -49,6 +49,22 @@
             <div class="grow"><label for="b-reason">Motivo (opcional)</label><input type="text" id="b-reason" name="reason"></div>
             <button class="btn sm">Bloquear</button>
         </form>
+    </div>
+
+    <h2>Agenda no celular</h2>
+    <div class="card stack">
+        <p class="muted small">Os atendimentos aparecem no aplicativo Calendário do iPhone, só para consulta. O celular busca as novidades sozinho, de tempos em tempos; o que ela marca no celular não volta para o sistema.</p>
+        @if ($feedToken !== '')
+            @php($feedUrl = route('calendar.feed', $feedToken))
+            <div><label for="feed-url">Link da agenda</label><input type="text" id="feed-url" value="{{ $feedUrl }}" readonly onfocus="this.select()"></div>
+            <div class="row">
+                <a class="btn sm" href="{{ preg_replace('/^https?:/', 'webcal:', $feedUrl) }}">Assinar neste aparelho</a>
+                <form class="inline" method="post" action="{{ route('admin.settings.feed') }}" onsubmit="return confirm('O link atual para de funcionar. Continuar?')">@csrf<button class="btn sm quiet">Trocar o link</button></form>
+            </div>
+            <p class="muted small">Quem tem este link vê nome e horário dos pacientes. Não compartilhe; se vazar, troque o link.</p>
+        @else
+            <form method="post" action="{{ route('admin.settings.feed') }}">@csrf<button class="btn sm">Criar link da agenda</button></form>
+        @endif
     </div>
 
     <h2>Regras da agenda</h2>

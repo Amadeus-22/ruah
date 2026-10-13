@@ -21,6 +21,20 @@
         @endforeach
     @endif
 
+    @if ($reminders->isNotEmpty())
+        <h2>Lembretes para enviar ({{ $reminders->count() }})</h2>
+        <div class="card">
+            @foreach ($reminders as $appointment)
+                <div class="row between" style="padding:.35rem 0">
+                    <span><strong>{{ $appointment->patient->patient_name }}</strong>
+                        <span class="muted small">{{ $appointment->starts_at->isToday() ? 'hoje' : 'amanhã' }} às {{ $appointment->starts_at->format('H:i') }} · resp. {{ $appointment->patient->guardian_name }}</span></span>
+                    <form class="inline" method="post" target="_blank" action="{{ route('admin.appointments.remind', $appointment) }}">@csrf<button class="btn sm">Enviar pelo WhatsApp</button></form>
+                </div>
+            @endforeach
+            <p class="muted small">O WhatsApp abre com a mensagem pronta; é só tocar em enviar. Recarregue esta página para o lembrete sair da lista.</p>
+        </div>
+    @endif
+
     @if ($endingPackages->isNotEmpty())
         <h2>Pacotes acabando</h2>
         <div class="card">
