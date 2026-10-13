@@ -285,7 +285,7 @@ class BookingFlowTest extends TestCase
         $this->get('/agenda/'.str_repeat('a', 40).'.ics')->assertNotFound();
         $ics = $this->get("/agenda/{$token}.ics")->assertOk()->assertHeader('Content-Type', 'text/calendar; charset=utf-8')->getContent();
 
-        $this->assertStringContainsString("UID:agendamento-{$kept->id}@agenda-fisio", $ics);
+        $this->assertStringContainsString("UID:agendamento-{$kept->id}@ruah", $ics);
         $this->assertStringNotContainsString("UID:agendamento-{$canceled->id}@", $ics);
         $this->assertStringContainsString('DTSTART:'.gmdate('Ymd\THis\Z', $kept->starts_at->getTimestamp()), $ics);
         $this->assertStringContainsString('SUMMARY:Bento · Sessão de RTA', $ics);

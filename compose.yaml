@@ -1,5 +1,8 @@
 # Banco local do projeto. O MySQL do sistema usa a 3306; este fica na 3307
 # e só escuta em 127.0.0.1.
+# Nome fixo: o volume do banco nasceu com o nome antigo da pasta.
+name: agenda-fisio
+
 services:
   db:
     image: mysql:8.4

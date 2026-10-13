@@ -1,4 +1,7 @@
-# Agenda Fisio
+# Ruah
+
+*Ruah* (רוּחַ) é a palavra hebraica para sopro, fôlego: o fôlego de vida de Gênesis 2:7.
+O nome vem do trabalho do consultório, que é fisioterapia respiratória (RTA).
 
 Agendamento para um consultório de fisioterapia com uma profissional.
 

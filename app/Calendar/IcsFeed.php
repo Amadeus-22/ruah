@@ -18,7 +18,7 @@ class IcsFeed
         $lines = [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//agenda-fisio//PT-BR',
+            'PRODID:-//ruah//PT-BR',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
             'X-WR-CALNAME:'.$this->escape($calendarName),
@@ -34,7 +34,7 @@ class IcsFeed
             array_push(
                 $lines,
                 'BEGIN:VEVENT',
-                'UID:agendamento-'.$appointment->id.'@agenda-fisio',
+                'UID:agendamento-'.$appointment->id.'@ruah',
                 'DTSTAMP:'.$this->utc($appointment->updated_at),
                 'DTSTART:'.$this->utc($appointment->starts_at),
                 'DTEND:'.$this->utc($appointment->ends_at),
