@@ -1,21 +1,19 @@
-# Banco local do projeto. O MySQL do sistema usa a 3306; este fica na 3307
-# e só escuta em 127.0.0.1.
-# Nome fixo: o volume do banco nasceu com o nome antigo da pasta.
-name: agenda-fisio
-
+# Local database. The system MySQL usually owns 3306, so this one listens on
+# 3307, bound to 127.0.0.1 only.
 services:
   db:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: agenda_fisio
-      MYSQL_USER: agenda
-      MYSQL_PASSWORD: agenda
+      MYSQL_DATABASE: ruah
+      MYSQL_USER: ruah
+      MYSQL_PASSWORD: ruah
       MYSQL_ROOT_PASSWORD: root-local
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
       - db:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot-local"]
       interval: 5s

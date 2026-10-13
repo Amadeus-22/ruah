@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Calendar\CalendarGateway;
+use App\Calendar\NullCalendar;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(\App\Calendar\CalendarGateway::class, \App\Calendar\NullCalendar::class);
+        $this->app->bind(CalendarGateway::class, NullCalendar::class);
     }
 
     /**
