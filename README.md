@@ -69,8 +69,8 @@ app/
 
 - **The slot rule is a pure function.** `SlotFinder` receives durations, windows,
   busy intervals and "now", and returns start times. It reads neither the
-  database nor the clock, so its edge cases (buffers, minimum notice, a block
-  that cuts a window in two) are covered by fast unit tests.
+  database nor the clock, so its edge cases (buffers on both sides of a session,
+  minimum notice, split working hours) are covered by fast unit tests.
 - **Double booking is prevented at the write.** `Booking::book` takes a cache
   lock, checks the slot again inside it and only then inserts. Two people
   tapping the same slot get one appointment and one clear error.
