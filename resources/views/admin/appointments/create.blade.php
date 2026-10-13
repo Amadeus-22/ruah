@@ -29,6 +29,7 @@
                     @endforeach
                 </select>
             </div>
+            @if ($inquiry)<input type="hidden" name="inquiry_id" value="{{ $inquiry->id }}">@endif
             <noscript><button class="btn sm">Atualizar</button></noscript>
         </form>
 
@@ -36,6 +37,7 @@
             @csrf
             <input type="hidden" name="service_id" value="{{ $service->id }}">
             @if ($patient)<input type="hidden" name="patient_id" value="{{ $patient->id }}">@endif
+            @if ($inquiry)<input type="hidden" name="inquiry_id" value="{{ $inquiry->id }}">@endif
 
             <div>
                 <label>Horário em <span class="cap">{{ $day->translatedFormat('l, j \d\e F') }}</span></label>
@@ -74,15 +76,15 @@
                 <div class="row">
                     <div class="grow">
                         <label for="guardian_name">Nome do responsável</label>
-                        <input type="text" id="guardian_name" name="guardian_name" value="{{ old('guardian_name') }}" required>
+                        <input type="text" id="guardian_name" name="guardian_name" value="{{ old('guardian_name', $inquiry?->guardian_name) }}" required>
                     </div>
                     <div class="grow">
                         <label for="patient_name">Nome do paciente</label>
-                        <input type="text" id="patient_name" name="patient_name" value="{{ old('patient_name') }}" required>
+                        <input type="text" id="patient_name" name="patient_name" value="{{ old('patient_name', $inquiry?->patient_name) }}" required>
                     </div>
                     <div class="grow">
                         <label for="phone">WhatsApp, com DDD</label>
-                        <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" required>
+                        <input type="tel" id="phone" name="phone" value="{{ old('phone', $inquiry?->phone) }}" required>
                     </div>
                 </div>
             @endif

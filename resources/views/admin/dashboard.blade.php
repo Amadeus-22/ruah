@@ -1,8 +1,8 @@
 @extends('layouts.admin')
-@section('title', 'Agenda')
+@section('title', 'Agenda do dia')
 @section('content')
     <div class="row between">
-        <h1>Agenda</h1>
+        <h1>Agenda do dia</h1>
         <a class="btn sm" href="{{ route('admin.appointments.create') }}">Novo horário</a>
     </div>
     <p class="muted small">Link para pacientes: <a href="{{ route('public.index') }}">{{ route('public.index') }}</a></p>

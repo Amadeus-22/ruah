@@ -10,11 +10,11 @@ class PatientPackage extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['patient_id', 'package_id', 'sessions_total', 'sessions_used', 'price_cents', 'purchased_on', 'paid_at'];
+    protected $fillable = ['patient_id', 'package_id', 'sessions_total', 'sessions_used', 'price_cents', 'purchased_on', 'paid_at', 'payment_method', 'invoice_number', 'invoiced_at'];
 
     protected function casts(): array
     {
-        return ['purchased_on' => 'date', 'paid_at' => 'datetime'];
+        return ['purchased_on' => 'date', 'paid_at' => 'datetime', 'invoiced_at' => 'datetime'];
     }
 
     public function patient(): BelongsTo

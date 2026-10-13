@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\PublicBookingController;
@@ -21,7 +23,11 @@ Route::post('/entrar', [AuthController::class, 'login'])->middleware('throttle:6
 Route::post('/sair', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
-    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::get('/', [BoardController::class, 'index'])->name('dashboard');
+    Route::get('/agenda', DashboardController::class)->name('agenda');
+    Route::post('/contatos', [BoardController::class, 'storeInquiry'])->name('inquiries.store');
+    Route::post('/contatos/{inquiry}/etapa/{stage}', [BoardController::class, 'moveInquiry'])->name('inquiries.move');
+    Route::post('/contatos/{inquiry}/arquivar', [BoardController::class, 'closeInquiry'])->name('inquiries.close');
 
     Route::get('/agendamentos/novo', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('/agendamentos', [AppointmentController::class, 'store'])->name('appointments.store');
@@ -36,6 +42,10 @@ Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
     Route::get('/servicos', [CatalogController::class, 'index'])->name('catalog');
     Route::post('/servicos/{service?}', [CatalogController::class, 'saveService'])->name('services.save');
     Route::post('/pacotes/{package?}', [CatalogController::class, 'savePackage'])->name('packages.save');
+
+    Route::get('/financeiro', [FinanceController::class, 'index'])->name('finance');
+    Route::get('/financeiro/exportar', [FinanceController::class, 'export'])->name('finance.export');
+    Route::put('/financeiro/{kind}/{id}', [FinanceController::class, 'update'])->name('finance.update');
 
     Route::get('/configuracoes', [SettingsController::class, 'index'])->name('settings');
     Route::post('/configuracoes', [SettingsController::class, 'save'])->name('settings.save');

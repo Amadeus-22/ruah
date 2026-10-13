@@ -9,8 +9,12 @@ pacotes de sessões e registra o valor combinado em cada atendimento.
 ## O que tem
 
 - **Página pública** (`/`): serviços, horários livres e pedido de horário.
-- **Painel** (`/painel`): pedidos a confirmar, agenda dos próximos dias, botão
-  de WhatsApp com a mensagem pronta, marcação de realizado ou falta.
+- **Quadro** (`/painel`): triagem em colunas, do primeiro contato ao atendimento
+  realizado: quer agendar, aguardando paciente, agendado, realizado, faltou.
+- **Agenda do dia** (`/painel/agenda`): os próximos 8 dias, com botão de
+  WhatsApp com a mensagem pronta.
+- **Financeiro** (`/painel/financeiro`): recebido, a receber e previsto no mês,
+  forma de pagamento, número da nota fiscal e planilha para o contador.
 - **Novo horário**: para lançar o que foi combinado por mensagem.
 - **Pacientes**: cadastro (responsável e paciente), pacotes e histórico.
 - **Serviços e pacotes**, **horários de atendimento**, **bloqueios** e as regras
@@ -54,4 +58,6 @@ Os serviços, valores e horários do seed são exemplos, para validar o fluxo.
   `CalendarGateway`. Enquanto isso, compromissos pessoais entram como bloqueio.
 - Trocar os dados de exemplo pelos reais e definir a senha do painel.
 - Aviso para a profissional quando chega um pedido; lembrete automático ao paciente.
+- Emissão da nota fiscal pelo sistema (hoje ele só guarda o número da nota emitida na prefeitura).
+- Criar o contato no quadro sozinho quando alguém chama no WhatsApp (precisa da API oficial).
 - Termo de privacidade (LGPD), hospedagem e domínio.

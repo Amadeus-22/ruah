@@ -158,7 +158,8 @@ class BookingFlowTest extends TestCase
         $appointment = app(Booking::class)->book($this->patient(), $this->service, $this->monday->setTime(9, 0));
         $user = User::factory()->create();
 
-        $this->actingAs($user)->get('/painel')->assertOk()->assertSee('Bento')->assertSee('Pedidos aguardando confirmação');
+        $this->actingAs($user)->get('/painel')->assertOk()->assertSee('Bento')->assertSee('Quer agendar');
+        $this->actingAs($user)->get('/painel/agenda')->assertOk()->assertSee('Pedidos aguardando confirmação');
         $this->actingAs($user)->post("/painel/agendamentos/{$appointment->id}/confirmar")->assertSessionHas('ok');
         $this->assertSame(AppointmentStatus::Confirmed, $appointment->fresh()->status);
     }
@@ -187,9 +188,80 @@ class BookingFlowTest extends TestCase
         $patient = $this->patient();
         app(Booking::class)->book($patient, $this->service, $this->monday->setTime(8, 0), AppointmentStatus::Confirmed);
 
-        foreach (['/painel', '/painel/agendamentos/novo', '/painel/pacientes', '/painel/pacientes/'.$patient->id, '/painel/servicos', '/painel/configuracoes'] as $url) {
+        foreach (['/painel', '/painel/agenda', '/painel/agendamentos/novo', '/painel/pacientes', '/painel/pacientes/'.$patient->id, '/painel/servicos', '/painel/configuracoes', '/painel/financeiro'] as $url) {
             $this->actingAs($user)->get($url)->assertOk();
         }
         $this->get('/entrar')->assertOk();
+    }
+
+    public function test_a_contact_moves_through_the_board_and_leaves_when_booked(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/painel/contatos', ['guardian_name' => 'Dora', 'patient_name' => 'Elis', 'phone' => '21 98888-7777', 'channel' => 'instagram'])
+            ->assertSessionHas('ok');
+        $inquiry = \App\Models\Inquiry::query()->firstOrFail();
+        $this->assertSame('new', $inquiry->stage);
+
+        $this->actingAs($user)->post("/painel/contatos/{$inquiry->id}/etapa/waiting");
+        $this->assertSame('waiting', $inquiry->fresh()->stage);
+        $this->actingAs($user)->get('/painel')->assertOk()->assertSee('Dora')->assertSee('Aguardando paciente');
+
+        // O formulário de novo horário já vem com os dados do contato.
+        $this->actingAs($user)->get('/painel/agendamentos/novo?day=2026-10-19&inquiry_id='.$inquiry->id)->assertOk()->assertSee('Dora')->assertSee('Elis');
+
+        $this->actingAs($user)->post('/painel/agendamentos', [
+            'service_id' => $this->service->id, 'start' => '2026-10-19T10:00', 'inquiry_id' => $inquiry->id,
+            'guardian_name' => 'Dora', 'patient_name' => 'Elis', 'phone' => '21 98888-7777',
+        ])->assertSessionHas('ok');
+
+        $this->assertNotNull($inquiry->fresh()->closed_at);
+        $this->assertSame(AppointmentStatus::Confirmed, Appointment::query()->firstOrFail()->status);
+    }
+
+    public function test_a_contact_cannot_be_moved_to_an_unknown_stage(): void
+    {
+        $user = User::factory()->create();
+        $inquiry = \App\Models\Inquiry::create(['guardian_name' => 'Dora']);
+
+        $this->actingAs($user)->post("/painel/contatos/{$inquiry->id}/etapa/feito")->assertNotFound();
+    }
+
+    public function test_finance_separates_received_due_and_expected_and_records_the_invoice(): void
+    {
+        $user = User::factory()->create();
+        $patient = $this->patient();
+        $booking = app(Booking::class);
+        $package = Package::create(['name' => '10 sessões', 'service_id' => $this->service->id, 'sessions' => 10, 'price_cents' => 130000]);
+        $owned = PatientPackage::create(['patient_id' => $patient->id, 'package_id' => $package->id, 'sessions_total' => 10, 'price_cents' => 120000, 'purchased_on' => $this->monday]);
+
+        $done = $booking->book($patient, $this->service, $this->monday->setTime(8, 0), AppointmentStatus::Confirmed, priceCents: 15000);
+        $later = $booking->book($patient, $this->service, $this->monday->setTime(10, 0), AppointmentStatus::Confirmed, priceCents: 14000);
+        $viaPackage = $booking->book($patient, $this->service, $this->monday->setTime(11, 0), AppointmentStatus::Confirmed, package: $owned);
+
+        $this->travelTo($this->monday->setTime(9, 0)); // o das 8h já passou; os outros ainda não
+
+        $this->actingAs($user)->put("/painel/financeiro/atendimento/{$done->id}", [
+            'price' => '150,00', 'paid' => '1', 'payment_method' => 'pix', 'invoice_number' => 'NF-101',
+        ])->assertSessionHas('ok');
+
+        $done->refresh();
+        $this->assertNotNull($done->paid_at);
+        $this->assertSame('pix', $done->payment_method);
+        $this->assertSame('NF-101', $done->invoice_number);
+
+        $page = $this->actingAs($user)->get('/painel/financeiro?mes=2026-10')->assertOk();
+        $totals = $page->viewData('totals');
+        $this->assertSame(15000, $totals['received']);
+        $this->assertSame(120000, $totals['due'], 'o pacote vendido e ainda não pago');
+        $this->assertSame(14000, $totals['expected'], 'o atendimento que ainda vai acontecer');
+        $this->assertSame(0, $totals['without_invoice']);
+        // O atendimento feito pelo pacote não é um lançamento: o dinheiro é o do pacote.
+        $this->assertFalse($page->viewData('entries')->contains(fn ($e) => $e['kind'] === 'atendimento' && $e['id'] === $viaPackage->id));
+
+        $csv = $this->actingAs($user)->get('/painel/financeiro/exportar?mes=2026-10')->assertOk()->streamedContent();
+        $this->assertStringContainsString('NF-101', $csv);
+        $this->assertStringContainsString('150,00', $csv);
+        $this->assertNotNull($later);
     }
 }

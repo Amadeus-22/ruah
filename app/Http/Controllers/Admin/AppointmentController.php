@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Inquiry;
 use App\Models\Patient;
 use App\Models\PatientPackage;
 use App\Models\Service;
@@ -33,6 +34,7 @@ class AppointmentController extends Controller
             'day' => $day,
             'patient' => $patient,
             'patients' => Patient::query()->orderBy('patient_name')->get(),
+            'inquiry' => Inquiry::query()->whereNull('closed_at')->find($request->query('inquiry_id')),
             // Ela pode marcar em cima da hora: sem antecedência mínima aqui.
             'slots' => $service ? $schedule->slotsOn($service, $day, CarbonImmutable::today()->subYears(10)) : [],
         ]);
@@ -49,6 +51,7 @@ class AppointmentController extends Controller
             'phone' => ['required_without:patient_id', 'nullable', 'string', 'max:20'],
             'patient_package_id' => ['nullable', 'exists:patient_packages,id'],
             'price' => ['nullable', 'string', 'max:20'],
+            'inquiry_id' => ['nullable', 'exists:inquiries,id'],
         ], [], ['guardian_name' => 'nome do responsável', 'patient_name' => 'nome do paciente', 'phone' => 'telefone']);
 
         $patient = ! empty($data['patient_id'])
@@ -70,6 +73,11 @@ class AppointmentController extends Controller
             );
         } catch (DomainException $e) {
             return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        // O contato que virou agendamento sai da triagem.
+        if (! empty($data['inquiry_id'])) {
+            Inquiry::query()->whereKey($data['inquiry_id'])->update(['closed_at' => now()]);
         }
 
         return redirect()->route('admin.dashboard')->with('ok', 'Agendamento criado.');

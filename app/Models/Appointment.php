@@ -14,6 +14,7 @@ class Appointment extends Model
     protected $fillable = [
         'patient_id', 'service_id', 'patient_package_id', 'starts_at', 'ends_at', 'status',
         'price_cents', 'paid_at', 'request_note', 'public_token', 'calendar_event_id',
+        'payment_method', 'invoice_number', 'invoiced_at',
     ];
 
     protected function casts(): array
@@ -22,6 +23,7 @@ class Appointment extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'paid_at' => 'datetime',
+            'invoiced_at' => 'datetime',
             'status' => AppointmentStatus::class,
         ];
     }
