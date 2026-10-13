@@ -18,7 +18,7 @@
     @if (\App\Models\Setting::get('clinic_address'))
         {{ \App\Models\Setting::get('clinic_address') }}
     @endif
-    <div><a href="{{ route('public.privacy') }}">Privacidade</a></div>
+    <div><a href="{{ route('public.privacy') }}">Privacidade</a> · <a href="{{ route('admin.dashboard') }}">Área da profissional</a></div>
 </footer>
 </body>
 </html>
