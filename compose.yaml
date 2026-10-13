@@ -1,0 +1,23 @@
+# Banco local do projeto. O MySQL do sistema usa a 3306; este fica na 3307
+# e só escuta em 127.0.0.1.
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: agenda_fisio
+      MYSQL_USER: agenda
+      MYSQL_PASSWORD: agenda
+      MYSQL_ROOT_PASSWORD: root-local
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot-local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  db:
