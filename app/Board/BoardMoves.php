@@ -49,6 +49,7 @@ class BoardMoves
                 return ['message' => 'Escolha o horário para agendar.', 'redirect' => route('admin.appointments.create', ['inquiry_id' => $card->id])];
             }
             $card->update(['stage' => $to === 'novo' ? Inquiry::STAGE_NEW : Inquiry::STAGE_WAITING]);
+            $card->log('Arrastado para "'.Inquiry::STAGES[$card->stage].'"');
 
             return ['message' => $to === 'novo' ? 'Contato de volta para "Quer agendar".' : 'Contato aguardando o paciente.'];
         }

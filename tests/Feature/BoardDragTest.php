@@ -91,4 +91,35 @@ class BoardDragTest extends TestCase
             ->assertSee('data-kind="agendamento"', false)
             ->assertSee('data-col="faltou"', false);
     }
+
+    public function test_a_card_is_created_edited_annotated_and_keeps_its_history(): void
+    {
+        $this->actingAs($this->user)->post('/painel/contatos', [
+            'guardian_name' => 'Marina', 'patient_name' => 'Theo', 'channel' => 'instagram', 'stage' => 'waiting',
+            'priority' => 'alta', 'service_id' => $this->service->id, 'preferred_period' => 'manha', 'note' => 'Tosse há duas semanas',
+        ])->assertSessionHas('ok');
+        $card = Inquiry::query()->firstOrFail();
+        $this->assertSame([Inquiry::STAGE_WAITING, 'alta', 'manha'], [$card->stage, $card->priority, $card->preferred_period]);
+
+        $this->actingAs($this->user)->get('/painel')->assertSee('Prioridade')->assertSee('Manhã');
+        $this->actingAs($this->user)->get("/painel/contatos/{$card->id}/editar")->assertOk()->assertSee('Anotações')->assertSee('Cartão criado em');
+
+        $this->actingAs($this->user)->post("/painel/contatos/{$card->id}/notas", ['body' => 'Mandei terça 9h'])->assertOk()->assertSee('Mandei terça 9h');
+
+        $this->actingAs($this->user)->put("/painel/contatos/{$card->id}", ['guardian_name' => 'Marina Duarte', 'channel' => 'instagram', 'stage' => 'new'])->assertSessionHas('ok');
+        $this->assertSame('Marina Duarte', $card->refresh()->guardian_name);
+
+        $this->move('contato', $card->id, 'aguardando')->assertOk()->assertJsonPath('message', 'Contato aguardando o paciente.');
+        $history = $card->events()->pluck('description')->all();
+        $this->assertSame(['Arrastado para "Aguardando paciente"', 'Editado e movido para "Quer agendar"', 'Cartão criado em "Aguardando paciente"'], $history);
+    }
+
+    public function test_a_move_returns_the_redrawn_card(): void
+    {
+        $requested = app(Booking::class)->book($this->patient, $this->service, $this->monday->setTime(8, 0), AppointmentStatus::Requested);
+
+        $html = $this->move('agendamento', $requested->id, 'agendado')->assertOk()->json('html');
+        $this->assertStringContainsString('Confirmado', $html);
+        $this->assertStringContainsString('data-id="'.$requested->id.'"', $html);
+    }
 }

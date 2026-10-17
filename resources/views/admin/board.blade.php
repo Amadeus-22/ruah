@@ -1,112 +1,99 @@
 @extends('layouts.admin')
 @section('title', 'Quadro')
 @section('content')
-    <div class="page-head">
-        <div>
-            <h1>Quadro de atendimento</h1>
-            <p class="muted small">Do primeiro contato ao atendimento realizado. Arraste os cartões entre as colunas, ou use os botões.</p>
+    @php
+        use App\Support\Icon;
+        $columns = [
+            'novo' => ['Quer agendar', 'Chegou e ainda não tem horário', 'inbox', '#2f6fd0', $newInquiries->count() + $requested->count(), 'Ninguém esperando resposta', 'Contatos novos e pedidos da página aparecem aqui.'],
+            'aguardando' => ['Aguardando paciente', 'Você respondeu; falta ele decidir', 'hourglass', '#b7791f', $waitingInquiries->count(), 'Nenhum contato aguardando', 'Arraste para cá quem já recebeu as opções de horário.'],
+            'agendado' => ['Agendado', 'Horário confirmado', 'calendar', '#1f7a6d', $confirmed->count(), 'Nenhum horário confirmado', 'Os atendimentos marcados aparecem aqui.'],
+            'realizado' => ['Realizado', 'Últimos 7 dias', 'check', '#1d6b3a', $done->count(), 'Nada realizado na semana', 'Arraste para cá o atendimento que aconteceu.'],
+            'faltou' => ['Faltou', 'Últimos 7 dias', 'x-circle', '#a3271f', $noShow->count(), 'Nenhuma falta na semana', 'Faltas ficam aqui para remarcar.'],
+        ];
+    @endphp
+
+    <header class="work-head">
+        <div class="work-title">
+            <span class="work-title-icon">{!! Icon::svg('board') !!}</span>
+            <div>
+                <h1>Quadro de atendimento</h1>
+                <p>Do primeiro contato ao atendimento realizado. Arraste os cartões entre as colunas.</p>
+            </div>
         </div>
-        <a class="btn sm" href="{{ route('admin.appointments.create') }}">Novo horário</a>
+        <nav class="view-switch" aria-label="Outras visões">
+            <a class="is-active" href="{{ route('admin.dashboard') }}" aria-current="page">{!! Icon::svg('board') !!} Quadro</a>
+            <a href="{{ route('admin.agenda') }}">{!! Icon::svg('calendar') !!} Agenda</a>
+            <a href="{{ route('admin.overview') }}">{!! Icon::svg('chart') !!} Visão geral</a>
+        </nav>
+    </header>
+
+    <div class="work-toolbar">
+        <label class="board-search" for="board-search">
+            {!! Icon::svg('search') !!}
+            <input type="search" id="board-search" placeholder="Buscar paciente, responsável, serviço..." autocomplete="off">
+        </label>
+        <div class="work-toolbar-actions">
+            <button class="btn" type="button" data-new-card>{!! Icon::svg('plus-circle') !!} Novo cartão</button>
+            <a class="btn ghost" href="{{ route('admin.appointments.create') }}">{!! Icon::svg('calendar') !!} Novo horário</a>
+        </div>
     </div>
+
+    <section class="status-summary" aria-label="Resumo por coluna">
+        @foreach ($columns as $key => [$title, $sub, $icon, $color, $count])
+            <a class="status-card" href="#col-{{ $key }}" data-summary="{{ $key }}" style="--c: {{ $color }}">
+                <span class="status-card-icon">{!! Icon::svg($icon) !!}</span>
+                <div><span class="status-card-label">{{ $title }}</span><strong>{{ $count }}</strong><small>{{ $sub }}</small></div>
+            </a>
+        @endforeach
+    </section>
 
     <div class="board">
-        {{-- 1. Quer agendar --}}
-        <section class="col" style="--c:#2f6fd0" aria-label="Quer agendar" data-col="novo">
-            <div class="col-head">
-                <div><strong>Quer agendar</strong><span class="hint">Chegou e ainda não tem horário</span></div>
-                <span class="count">{{ $newInquiries->count() + $requested->count() }}</span>
-            </div>
-            <div class="col-body">
-                <details class="kcard">
-                    <summary>Adicionar contato</summary>
-                    <form class="stack" method="post" action="{{ route('admin.inquiries.store') }}" style="margin-top:.6rem">
-                        @csrf
-                        <div><label for="i-name">Nome de quem chamou</label><input type="text" id="i-name" name="guardian_name" required></div>
-                        <div><label for="i-patient">Paciente (se souber)</label><input type="text" id="i-patient" name="patient_name"></div>
-                        <div><label for="i-phone">WhatsApp</label><input type="tel" id="i-phone" name="phone" inputmode="tel"></div>
-                        <div><label for="i-channel">Veio por</label>
-                            <select id="i-channel" name="channel">@foreach (\App\Models\Inquiry::CHANNELS as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach</select>
+        @foreach ($columns as $key => [$title, $sub, $icon, $color, $count, $emptyTitle, $emptyText])
+            <section class="col" id="col-{{ $key }}" style="--c: {{ $color }}" aria-label="{{ $title }}" data-col="{{ $key }}">
+                <div class="col-head">
+                    <span class="col-icon">{!! Icon::svg($icon) !!}</span>
+                    <div class="col-title"><strong>{{ $title }}</strong><span class="hint">{{ $sub }}</span></div>
+                    <span class="count" data-count>{{ $count }}</span>
+                </div>
+                <div class="col-body">
+                    @if ($key === 'novo')
+                        @foreach ($requested as $appointment)
+                            @include('partials.kcard', ['appointment' => $appointment])
+                        @endforeach
+                        @foreach ($newInquiries as $inquiry)
+                            @include('partials.inquiry', ['inquiry' => $inquiry])
+                        @endforeach
+                    @elseif ($key === 'aguardando')
+                        @foreach ($waitingInquiries as $inquiry)
+                            @include('partials.inquiry', ['inquiry' => $inquiry])
+                        @endforeach
+                    @else
+                        @foreach (['agendado' => $confirmed, 'realizado' => $done, 'faltou' => $noShow][$key] as $appointment)
+                            @include('partials.kcard', ['appointment' => $appointment])
+                        @endforeach
+                    @endif
+                    <div class="col-empty">
+                            <span class="col-empty-icon">{!! Icon::svg($icon) !!}</span>
+                            <strong>{{ $emptyTitle }}</strong>
+                            <span>{{ $emptyText }}</span>
                         </div>
-                        <div><label for="i-note">Anotação</label><input type="text" id="i-note" name="note" placeholder="Prefere manhã"></div>
-                        <button class="btn sm">Adicionar</button>
-                    </form>
-                </details>
-
-                @foreach ($requested as $appointment)
-                    <div><span class="chip">pedido pela página</span></div>
-                    @include('partials.kcard', ['appointment' => $appointment])
-                @endforeach
-
-                @foreach ($newInquiries as $inquiry)
-                    @include('partials.inquiry', ['inquiry' => $inquiry])
-                @endforeach
-
-                @if ($requested->isEmpty() && $newInquiries->isEmpty())
-                    <div class="empty">Ninguém esperando resposta sua.</div>
+                </div>
+                @if ($key === 'novo')
+                    <button class="col-add" type="button" data-new-card="new">{!! Icon::svg('plus-circle') !!} Novo cartão</button>
+                @elseif ($key === 'aguardando')
+                    <button class="col-add" type="button" data-new-card="waiting">{!! Icon::svg('plus-circle') !!} Novo cartão</button>
+                @elseif ($key === 'agendado')
+                    <a class="col-add" href="{{ route('admin.appointments.create') }}">{!! Icon::svg('plus-circle') !!} Novo horário</a>
                 @endif
-            </div>
-        </section>
-
-        {{-- 2. Aguardando paciente --}}
-        <section class="col" style="--c:#b7791f" aria-label="Aguardando paciente" data-col="aguardando">
-            <div class="col-head">
-                <div><strong>Aguardando paciente</strong><span class="hint">Você respondeu; falta ele decidir</span></div>
-                <span class="count">{{ $waitingInquiries->count() }}</span>
-            </div>
-            <div class="col-body">
-                @forelse ($waitingInquiries as $inquiry)
-                    @include('partials.inquiry', ['inquiry' => $inquiry])
-                @empty
-                    <div class="empty">Nenhum contato aguardando resposta.</div>
-                @endforelse
-            </div>
-        </section>
-
-        {{-- 3. Agendado --}}
-        <section class="col" style="--c:#1f7a6d" aria-label="Agendado" data-col="agendado">
-            <div class="col-head">
-                <div><strong>Agendado</strong><span class="hint">Horário confirmado</span></div>
-                <span class="count">{{ $confirmed->count() }}</span>
-            </div>
-            <div class="col-body">
-                @forelse ($confirmed as $appointment)
-                    @include('partials.kcard', ['appointment' => $appointment])
-                @empty
-                    <div class="empty">Nenhum horário confirmado.</div>
-                @endforelse
-            </div>
-        </section>
-
-        {{-- 4. Realizado --}}
-        <section class="col" style="--c:#1d6b3a" aria-label="Realizado" data-col="realizado">
-            <div class="col-head">
-                <div><strong>Realizado</strong><span class="hint">Últimos 7 dias</span></div>
-                <span class="count">{{ $done->count() }}</span>
-            </div>
-            <div class="col-body">
-                @forelse ($done as $appointment)
-                    @include('partials.kcard', ['appointment' => $appointment])
-                @empty
-                    <div class="empty">Nenhum atendimento realizado na semana.</div>
-                @endforelse
-            </div>
-        </section>
-
-        {{-- 5. Faltou --}}
-        <section class="col" style="--c:#a3271f" aria-label="Faltou" data-col="faltou">
-            <div class="col-head">
-                <div><strong>Faltou</strong><span class="hint">Últimos 7 dias</span></div>
-                <span class="count">{{ $noShow->count() }}</span>
-            </div>
-            <div class="col-body">
-                @forelse ($noShow as $appointment)
-                    @include('partials.kcard', ['appointment' => $appointment])
-                @empty
-                    <div class="empty">Nenhuma falta na semana.</div>
-                @endforelse
-            </div>
-        </section>
+            </section>
+        @endforeach
     </div>
+
+    <dialog class="modal modal-lg" id="card-modal" aria-label="Cartão do quadro">
+        <div class="modal-body" data-new-card-template hidden>@include('partials.card-modal', ['inquiry' => null])</div>
+        <div class="modal-body" data-modal-content></div>
+    </dialog>
+
     <div class="toast" role="status" aria-live="polite" hidden></div>
 @endsection
 
@@ -118,55 +105,132 @@
     const token = document.querySelector('meta[name=csrf-token]').content;
     let dragged = null;
 
+    // Janela do cartão: criar a partir do modelo, editar carregando do servidor.
+    const modal = document.getElementById('card-modal');
+    const content = modal.querySelector('[data-modal-content]');
+    const template = modal.querySelector('[data-new-card-template]');
+    const wire = () => {
+        content.querySelectorAll('[data-close-dialog]').forEach((b) => b.addEventListener('click', () => modal.close()));
+        content.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => {
+            content.querySelectorAll('[data-tab]').forEach((t) => t.classList.toggle('is-active', t === b));
+            content.querySelectorAll('[data-pane]').forEach((p) => { p.hidden = p.dataset.pane !== b.dataset.tab; });
+        }));
+        const noteForm = content.querySelector('[data-note-form]');
+        noteForm?.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const res = await fetch(noteForm.action, { method: 'POST', headers: { 'X-CSRF-TOKEN': token, 'Accept': 'text/html' }, body: new FormData(noteForm) });
+            if (res.ok) { content.innerHTML = await res.text(); wire(); content.querySelector('[data-note-form] input')?.focus(); }
+        });
+    };
+    document.querySelectorAll('[data-new-card]').forEach((b) => b.addEventListener('click', () => {
+        content.innerHTML = template.innerHTML;
+        if (b.dataset.newCard) content.querySelector('#c-stage').value = b.dataset.newCard;
+        wire(); modal.showModal(); content.querySelector('#c-name').focus();
+    }));
+    document.addEventListener('click', async (ev) => {
+        const b = ev.target.closest('[data-edit-card]');
+        if (!b) return;
+        ev.preventDefault();
+        const res = await fetch(b.dataset.editCard, { headers: { 'Accept': 'text/html' } });
+        if (!res.ok) return;
+        content.innerHTML = await res.text(); wire(); modal.showModal();
+    });
+    modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.close(); });
+    template.remove();
+
+    // Menus "mais ações": só um aberto por vez.
+    document.addEventListener('click', (ev) => {
+        document.querySelectorAll('details.more[open]').forEach((m) => { if (!m.contains(ev.target)) m.removeAttribute('open'); });
+    });
+
+    // Busca: esconde os cartões que não batem com o texto.
+    const search = document.getElementById('board-search');
+    const norm = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    search.addEventListener('input', () => {
+        const q = norm(search.value.trim());
+        board.querySelectorAll('.kcard').forEach((c) => { c.hidden = q !== '' && !norm(c.textContent).includes(q); });
+    });
+
     const say = (text, bad = false) => {
         toast.textContent = text; toast.classList.toggle('bad', bad); toast.hidden = false;
-        clearTimeout(say.t); say.t = setTimeout(() => { toast.hidden = true; }, 3500);
+        clearTimeout(say.t); say.t = setTimeout(() => { toast.hidden = true; }, 3200);
     };
-    const columns = () => board.querySelectorAll('.col[data-col]');
-    const clear = () => columns().forEach((c) => c.classList.remove('can-drop', 'no-drop', 'over'));
+    const columns = [...board.querySelectorAll('.col[data-col]')];
+    const clear = () => columns.forEach((c) => c.classList.remove('can-drop', 'no-drop', 'over'));
+    const recount = () => columns.forEach((c) => {
+        const n = c.querySelectorAll('.kcard').length;
+        c.querySelector('[data-count]').textContent = n;
+        const tile = document.querySelector(`[data-summary="${c.dataset.col}"] strong`);
+        if (tile) tile.textContent = n;
+    });
+    const placeholder = document.createElement('div');
+    placeholder.className = 'drop-slot';
+    let origin = null;
+
+    // Onde o cartão entraria: antes do primeiro cartão cujo meio fica abaixo do mouse.
+    const slotBefore = (body, y) => [...body.querySelectorAll('.kcard:not(.dragging)')]
+        .find((c) => { const r = c.getBoundingClientRect(); return y < r.top + r.height / 2; }) || null;
 
     board.addEventListener('dragstart', (ev) => {
         const card = ev.target.closest('.kcard[draggable=true]');
         if (!card) return;
         dragged = card;
+        origin = { parent: card.parentNode, next: card.nextSibling };
         ev.dataTransfer.effectAllowed = 'move';
         ev.dataTransfer.setData('text/plain', card.dataset.id);
+        placeholder.style.height = card.offsetHeight + 'px';
         const allowed = card.dataset.allowed.split(' ');
         requestAnimationFrame(() => card.classList.add('dragging'));
-        columns().forEach((c) => {
+        columns.forEach((c) => {
             if (c.contains(card)) return;
             c.classList.add(allowed.includes(c.dataset.col) ? 'can-drop' : 'no-drop');
         });
     });
-    board.addEventListener('dragend', () => { dragged?.classList.remove('dragging'); dragged = null; clear(); });
+    board.addEventListener('dragend', () => {
+        dragged?.classList.remove('dragging'); dragged = null; placeholder.remove(); clear();
+    });
 
-    columns().forEach((col) => {
+    columns.forEach((col) => {
+        const body = col.querySelector('.col-body');
         col.addEventListener('dragover', (ev) => {
             if (!dragged || !col.classList.contains('can-drop')) return;
-            ev.preventDefault(); col.classList.add('over');
+            ev.preventDefault();
+            ev.dataTransfer.dropEffect = 'move';
+            columns.forEach((c) => c.classList.toggle('over', c === col));
+            const before = slotBefore(body, ev.clientY);
+            if (placeholder.parentNode !== body || placeholder.nextSibling !== before) body.insertBefore(placeholder, before);
         });
-        col.addEventListener('dragleave', (ev) => { if (!col.contains(ev.relatedTarget)) col.classList.remove('over'); });
+        col.addEventListener('dragleave', (ev) => {
+            if (!col.contains(ev.relatedTarget)) { col.classList.remove('over'); if (placeholder.parentNode === body) placeholder.remove(); }
+        });
         col.addEventListener('drop', async (ev) => {
             ev.preventDefault();
-            if (!dragged) return;
+            if (!dragged || !col.classList.contains('can-drop')) return;
             const card = dragged;
-            if (col.classList.contains('no-drop') || !col.classList.contains('can-drop')) return;
-            card.classList.add('saving');
-            col.querySelector('.col-body').append(card);
-            clear();
+            const back = origin;
+            body.insertBefore(card, placeholder.parentNode === body ? placeholder : body.firstChild);
+            placeholder.remove();
+            card.classList.remove('dragging');
+            card.classList.add('saving', 'landed');
+            clear(); recount();
+            const undo = (msg) => { back.parent.insertBefore(card, back.next); card.classList.remove('saving'); recount(); say(msg, true); };
             try {
                 const res = await fetch(@json(route('admin.board.move')), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token },
                     body: JSON.stringify({ kind: card.dataset.kind, id: Number(card.dataset.id), to: col.dataset.col }),
                 });
-                const body = await res.json().catch(() => ({}));
-                if (!res.ok) { say(body.message || 'Não foi possível mover o cartão.', true); setTimeout(() => location.reload(), 1200); return; }
-                if (body.redirect) { location.href = body.redirect; return; }
-                say(body.message || 'Cartão movido.');
-                setTimeout(() => location.reload(), 600);
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) { undo(data.message || 'Não foi possível mover o cartão.'); return; }
+                if (data.redirect) { location.href = data.redirect; return; }
+                if (data.html) {
+                    const fresh = document.createRange().createContextualFragment(data.html).firstElementChild;
+                    fresh.classList.add('landed');
+                    card.replaceWith(fresh);
+                }
+                say(data.message || 'Cartão movido.');
             } catch (e) {
-                say('Sem conexão. O cartão voltou para o lugar.', true); setTimeout(() => location.reload(), 1200);
+                undo('Sem conexão. O cartão voltou para o lugar.');
             }
         });
     });

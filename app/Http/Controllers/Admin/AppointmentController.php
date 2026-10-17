@@ -77,7 +77,10 @@ class AppointmentController extends Controller
 
         // O contato que virou agendamento sai da triagem.
         if (! empty($data['inquiry_id'])) {
-            Inquiry::query()->whereKey($data['inquiry_id'])->update(['closed_at' => now()]);
+            $inquiry = Inquiry::query()->find($data['inquiry_id']);
+            $inquiry?->update(['closed_at' => now()]);
+            $start = CarbonImmutable::createFromFormat('Y-m-d\\TH:i', $data['start']);
+            $inquiry?->log('Agendado para '.$start->format('d/m').' às '.$start->format('H:i'));
         }
 
         return redirect()->route('admin.dashboard')->with('ok', 'Agendamento criado.');

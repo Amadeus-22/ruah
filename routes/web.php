@@ -35,6 +35,9 @@ Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
     Route::get('/agenda', DashboardController::class)->name('agenda');
     Route::post('/quadro/mover', [BoardController::class, 'move'])->name('board.move');
     Route::post('/contatos', [BoardController::class, 'storeInquiry'])->name('inquiries.store');
+    Route::get('/contatos/{inquiry}/editar', [BoardController::class, 'editInquiry'])->name('inquiries.edit');
+    Route::put('/contatos/{inquiry}', [BoardController::class, 'updateInquiry'])->name('inquiries.update');
+    Route::post('/contatos/{inquiry}/notas', [BoardController::class, 'addNote'])->name('inquiries.notes');
     Route::post('/contatos/{inquiry}/etapa/{stage}', [BoardController::class, 'moveInquiry'])->name('inquiries.move');
     Route::post('/contatos/{inquiry}/arquivar', [BoardController::class, 'closeInquiry'])->name('inquiries.close');
 
