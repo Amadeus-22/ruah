@@ -33,6 +33,7 @@ Route::post('/sair', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
     Route::get('/', [BoardController::class, 'index'])->name('dashboard');
     Route::get('/agenda', DashboardController::class)->name('agenda');
+    Route::post('/quadro/mover', [BoardController::class, 'move'])->name('board.move');
     Route::post('/contatos', [BoardController::class, 'storeInquiry'])->name('inquiries.store');
     Route::post('/contatos/{inquiry}/etapa/{stage}', [BoardController::class, 'moveInquiry'])->name('inquiries.move');
     Route::post('/contatos/{inquiry}/arquivar', [BoardController::class, 'closeInquiry'])->name('inquiries.close');

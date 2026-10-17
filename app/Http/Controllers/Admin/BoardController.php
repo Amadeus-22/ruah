@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Board\BoardMoves;
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Inquiry;
 use Carbon\CarbonImmutable;
+use DomainException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -60,5 +63,25 @@ class BoardController extends Controller
         $inquiry->update(['closed_at' => now()]);
 
         return back()->with('ok', 'Contato arquivado.');
+    }
+
+    /** Arrastar e soltar: move o cartão e responde em JSON para a tela. */
+    public function move(Request $request, BoardMoves $moves): JsonResponse
+    {
+        $data = $request->validate([
+            'kind' => ['required', 'in:contato,agendamento'],
+            'id' => ['required', 'integer'],
+            'to' => ['required', 'in:'.implode(',', BoardMoves::COLUMNS)],
+        ]);
+
+        $card = $data['kind'] === 'contato'
+            ? Inquiry::query()->whereNull('closed_at')->findOrFail($data['id'])
+            : Appointment::query()->findOrFail($data['id']);
+
+        try {
+            return response()->json($moves->move($card, $data['to']));
+        } catch (DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 }

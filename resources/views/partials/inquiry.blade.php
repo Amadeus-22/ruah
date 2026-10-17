@@ -1,5 +1,5 @@
 @php($number = $inquiry->whatsappNumber())
-<div class="kcard">
+<div class="kcard draggable" draggable="true" data-kind="contato" data-id="{{ $inquiry->id }}" data-allowed="{{ implode(' ', \App\Board\BoardMoves::allowed($inquiry)) }}">
     <div class="who">{{ $inquiry->guardian_name }}</div>
     <div class="meta">
         @if ($inquiry->patient_name)paciente {{ $inquiry->patient_name }} · @endif

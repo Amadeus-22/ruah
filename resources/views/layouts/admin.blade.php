@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Painel') · {{ \App\Models\Setting::get('clinic_name') }}</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>try { if (localStorage.getItem('ruah-panel') === 'closed') document.documentElement.classList.add('panel-closed'); } catch (e) {}</script>
 </head>
 <body class="admin">

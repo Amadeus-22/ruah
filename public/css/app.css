@@ -232,3 +232,21 @@ body.admin { background: #f3f6f5; }
 .owing > strong { white-space: nowrap; }
 .owing { display: flex; justify-content: space-between; gap: .8rem; padding: .55rem 0; border-bottom: 1px solid var(--line); }
 .owing:last-child { border-bottom: 0; }
+
+/* ── Quadro: arrastar e soltar ──────────────────────────────────────────── */
+.kcard.draggable { cursor: grab; transition: box-shadow .15s ease, transform .15s ease, opacity .15s ease; }
+.kcard.draggable:hover { box-shadow: 0 6px 18px rgba(15, 43, 39, .1); transform: translateY(-1px); }
+.kcard.dragging { opacity: .45; transform: rotate(1.5deg); }
+.kcard.saving { opacity: .6; pointer-events: none; }
+.col { transition: background .15s ease, outline-color .15s ease, opacity .15s ease; outline: 2px dashed transparent; outline-offset: -2px; }
+.col.can-drop { background: #e7f3f0; outline-color: color-mix(in srgb, var(--c) 55%, transparent); }
+.col.over { background: color-mix(in srgb, var(--c) 14%, #fff); outline-style: solid; }
+.col.no-drop { opacity: .5; }
+.toast { position: fixed; z-index: 60; left: 50%; bottom: 1.4rem; transform: translateX(-50%); background: var(--rail); color: #fff; padding: .7rem 1.1rem; border-radius: 12px; box-shadow: var(--shadow); font-weight: 600; font-size: .93rem; }
+.toast.bad { background: var(--bad); }
+@media (hover: none) { .kcard.draggable { cursor: auto; } }
+.board { grid-auto-columns: minmax(196px, 1fr); }
+.kcard .actions { gap: .3rem; }
+.kcard .btn.sm { padding: .28rem .55rem; font-size: .8rem; border-radius: 8px; }
+.kcard .who { font-size: .96rem; }
+.kcard .meta { font-size: .8rem; }

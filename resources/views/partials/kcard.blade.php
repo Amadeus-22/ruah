@@ -8,7 +8,8 @@
     $wa = 'https://wa.me/' . $appointment->patient->whatsappNumber() . '?text=' . rawurlencode($text);
     $late = $s === AppointmentStatus::Confirmed && $appointment->ends_at->lessThan($now);
 @endphp
-<div @class(['kcard', 'late' => $late])>
+@php($allowed = \App\Board\BoardMoves::allowed($appointment))
+<div @class(['kcard', 'late' => $late, 'draggable' => $allowed]) @if ($allowed) draggable="true" @endif data-kind="agendamento" data-id="{{ $appointment->id }}" data-allowed="{{ implode(' ', $allowed) }}">
     <div class="when cap">{{ $when }}</div>
     <a class="who" href="{{ route('admin.patients.show', $appointment->patient) }}">{{ $appointment->patient->patient_name }}</a>
     <div class="meta">{{ $appointment->service->name }} · resp. {{ $appointment->patient->guardian_name }}</div>
