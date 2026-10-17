@@ -78,12 +78,16 @@ class DemoSeeder extends Seeder
         }
     }
 
-    /** O dia a tantos dias de hoje, empurrado para fora do fim de semana. */
+    /** O n-ésimo dia útil a partir de hoje (negativo: para trás). Dois n diferentes nunca caem no mesmo dia. */
     private function weekday(int $offset): CarbonImmutable
     {
-        $day = CarbonImmutable::today()->addDays($offset);
-        while ($day->isWeekend()) {
-            $day = $offset < 0 ? $day->subDay() : $day->addDay();
+        $day = CarbonImmutable::today();
+        $step = $offset < 0 ? -1 : 1;
+        for ($left = abs($offset); $left > 0;) {
+            $day = $day->addDays($step);
+            if (! $day->isWeekend()) {
+                $left--;
+            }
         }
 
         return $day;
