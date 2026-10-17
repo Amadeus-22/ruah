@@ -6,7 +6,9 @@ use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FinanceController;
+use App\Http\Controllers\Admin\OverviewController;
 use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\CalendarFeedController;
 use App\Http\Controllers\PublicBookingController;
@@ -49,6 +51,12 @@ Route::middleware('auth')->prefix('painel')->name('admin.')->group(function () {
     Route::get('/servicos', [CatalogController::class, 'index'])->name('catalog');
     Route::post('/servicos/{service?}', [CatalogController::class, 'saveService'])->name('services.save');
     Route::post('/pacotes/{package?}', [CatalogController::class, 'savePackage'])->name('packages.save');
+
+    Route::get('/visao', OverviewController::class)->name('overview');
+
+    Route::get('/perfil', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/perfil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/perfil/foto', [ProfileController::class, 'photo'])->name('profile.photo');
 
     Route::get('/financeiro', [FinanceController::class, 'index'])->name('finance');
     Route::get('/financeiro/exportar', [FinanceController::class, 'export'])->name('finance.export');

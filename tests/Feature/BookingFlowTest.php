@@ -189,7 +189,7 @@ class BookingFlowTest extends TestCase
         $patient = $this->patient();
         app(Booking::class)->book($patient, $this->service, $this->monday->setTime(8, 0), AppointmentStatus::Confirmed);
 
-        foreach (['/painel', '/painel/agenda', '/painel/agendamentos/novo', '/painel/pacientes', '/painel/pacientes/'.$patient->id, '/painel/servicos', '/painel/configuracoes', '/painel/financeiro'] as $url) {
+        foreach (['/painel', '/painel/agenda', '/painel/agendamentos/novo', '/painel/pacientes', '/painel/pacientes/'.$patient->id, '/painel/servicos', '/painel/configuracoes', '/painel/financeiro', '/painel/visao', '/painel/perfil'] as $url) {
             $this->actingAs($user)->get($url)->assertOk();
         }
         $this->get('/entrar')->assertOk();
