@@ -58,6 +58,15 @@
   --bad: #a3392f;    --bad-soft: #fbe8e5;
   --info: #2f5f8a;   --info-soft: #e5eef7;
 
+  /* Workflow stages (board columns, finance figures). Views reference these by name,
+     e.g. style="--c: var(--stage-new)", never with a literal color. */
+  --stage-new: var(--info);          /* quer agendar */
+  --stage-waiting: var(--warn);      /* aguardando paciente / a receber */
+  --stage-booked: var(--brand);      /* agendado */
+  --stage-done: var(--ok);           /* realizado / recebido */
+  --stage-missed: var(--bad);        /* faltou / pagos sem nota */
+  --stage-expected: var(--info);     /* previsto */
+
   /* Typography */
   --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;   /* brand: Gabriola */
   --font-label: "Josefin Sans", "Avenir Next", "Segoe UI", sans-serif;      /* brand: Caviar Dreams */

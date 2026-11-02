@@ -1,0 +1,46 @@
+/*
+ * Páginas dos pacientes: cabeçalho com a marca, conteúdo em largura de leitura, rodapé.
+ * Mobile first; respeita as safe-areas do webview.
+ *
+ * Contêiner: .wrap / .wrap.wide / .wrap.narrow (base.css) dão a largura máxima; aqui só o
+ * respiro lateral com safe-area.
+ */
+body.public {
+  display: flex; flex-direction: column;
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--bg);
+}
+body.public .wrap {
+  width: 100%;
+  padding-left: calc(var(--space-4) + var(--safe-left));
+  padding-right: calc(var(--space-4) + var(--safe-right));
+}
+
+/* Cabeçalho com o logotipo */
+header.top {
+  padding-top: var(--safe-top);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+header.top .wrap { display: flex; justify-content: center; align-items: center; padding-block: var(--space-3); }
+header.top .name { display: block; line-height: 0; border-radius: var(--radius-sm); }
+header.top .name:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.top-logo { width: min(240px, 70vw); height: auto; }
+
+.site-main { flex: 1; padding-block: var(--space-5) var(--space-8); }
+
+/* Rodapé */
+footer.note {
+  padding: var(--space-5) calc(var(--space-4) + var(--safe-right)) calc(var(--space-8) + var(--safe-bottom)) calc(var(--space-4) + var(--safe-left));
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted); font-size: var(--text-sm); text-align: center;
+}
+footer.note div { margin-top: var(--space-1); }
+footer.note a { display: inline-block; padding-block: var(--space-2); color: var(--brand); }
+
+@media (min-width: 600px) {
+  body.public .wrap { padding-left: calc(var(--space-6) + var(--safe-left)); padding-right: calc(var(--space-6) + var(--safe-right)); }
+  header.top .wrap { padding-block: var(--space-4); }
+  .top-logo { width: 280px; }
+  .site-main { padding-block: var(--space-8); }
+}
