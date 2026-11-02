@@ -1,14 +1,22 @@
 @extends('layouts.admin')
 @section('title', 'Novo horário')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/appointment-form.css') }}?v={{ filemtime(public_path('css/pages/appointment-form.css')) }}">
+@endpush
 @section('content')
-    <h1>Novo horário</h1>
-    <p class="muted">Para lançar um atendimento combinado por mensagem. Ele já entra confirmado.</p>
+<div class="page-appt-new">
+    <div class="page-head">
+        <div>
+            <h1>Novo horário</h1>
+            <p class="muted mb-0">Para lançar um atendimento combinado por mensagem. Ele já entra confirmado.</p>
+        </div>
+    </div>
 
     @if ($services->isEmpty())
         <div class="card">Cadastre um serviço primeiro, em <a href="{{ route('admin.catalog') }}">Serviços e pacotes</a>.</div>
     @else
-        <form class="card row" method="get" action="{{ route('admin.appointments.create') }}">
-            <div class="grow">
+        <form class="card form-grid" method="get" action="{{ route('admin.appointments.create') }}">
+            <div class="span-2">
                 <label for="service_id">Serviço</label>
                 <select id="service_id" name="service_id" onchange="this.form.submit()">
                     @foreach ($services as $option)
@@ -16,11 +24,11 @@
                     @endforeach
                 </select>
             </div>
-            <div class="grow">
+            <div>
                 <label for="day">Dia</label>
                 <input type="date" id="day" name="day" value="{{ $day->toDateString() }}" onchange="this.form.submit()">
             </div>
-            <div class="grow">
+            <div>
                 <label for="patient_pick">Paciente já cadastrado</label>
                 <select id="patient_pick" name="patient_id" onchange="this.form.submit()">
                     <option value="">Paciente novo</option>
@@ -39,26 +47,28 @@
             @if ($patient)<input type="hidden" name="patient_id" value="{{ $patient->id }}">@endif
             @if ($inquiry)<input type="hidden" name="inquiry_id" value="{{ $inquiry->id }}">@endif
 
-            <div>
-                <label>Horário em <span class="cap">{{ $day->translatedFormat('l, j \d\e F') }}</span></label>
+            <fieldset class="slot-field">
+                <legend>Horário em <span class="cap">{{ $day->translatedFormat('l, j \d\e F') }}</span></legend>
                 @if ($slots === [])
                     <p class="muted">Sem horário livre neste dia. Confira os horários de atendimento e os bloqueios em Configurações.</p>
                 @else
-                    <div class="slots">
+                    <div class="slot-grid">
                         @foreach ($slots as $slot)
-                            <label class="slot" style="cursor:pointer">
+                            <label class="slot-tile">
                                 <input type="radio" name="start" value="{{ $slot->format('Y-m-d\TH:i') }}" required
-                                       @checked(old('start') === $slot->format('Y-m-d\TH:i')) style="margin-right:.2rem">{{ $slot->format('H:i') }}
+                                       @checked(old('start') === $slot->format('Y-m-d\TH:i'))><span>{{ $slot->format('H:i') }}</span>
                             </label>
                         @endforeach
                     </div>
                 @endif
-            </div>
+            </fieldset>
 
             @if ($patient)
-                <div>
-                    <label>Paciente</label>
-                    <p>{{ $patient->patient_name }} <span class="muted">· resp. {{ $patient->guardian_name }} · {{ $patient->phone }}</span></p>
+                <div class="info-box mt-0">
+                    <div>
+                        <strong>{{ $patient->patient_name }}</strong>
+                        <span>Resp. {{ $patient->guardian_name }} · {{ $patient->phone }}</span>
+                    </div>
                 </div>
                 @php($usable = $patient->packages->filter(fn ($pp) => $pp->remaining() > 0 && $pp->package->service_id === $service->id))
                 @if ($usable->isNotEmpty())
@@ -72,29 +82,31 @@
                         </select>
                     </div>
                 @endif
-            @else
-                <div class="row">
-                    <div class="grow">
+            @endif
+
+            <div class="form-grid">
+                @unless ($patient)
+                    <div>
                         <label for="guardian_name">Nome do responsável</label>
                         <input type="text" id="guardian_name" name="guardian_name" value="{{ old('guardian_name', $inquiry?->guardian_name) }}" required>
                     </div>
-                    <div class="grow">
+                    <div>
                         <label for="patient_name">Nome do paciente</label>
                         <input type="text" id="patient_name" name="patient_name" value="{{ old('patient_name', $inquiry?->patient_name) }}" required>
                     </div>
-                    <div class="grow">
+                    <div>
                         <label for="phone">WhatsApp, com DDD</label>
                         <input type="tel" id="phone" name="phone" value="{{ old('phone', $inquiry?->phone) }}" required>
                     </div>
+                @endunless
+                <div>
+                    <label for="price">Valor combinado (avulso)</label>
+                    <input type="text" id="price" name="price" inputmode="decimal" value="{{ old('price', $service->suggested_price_cents ? number_format($service->suggested_price_cents / 100, 2, ',', '') : '') }}">
                 </div>
-            @endif
-
-            <div style="max-width: 14rem">
-                <label for="price">Valor combinado (avulso)</label>
-                <input type="text" id="price" name="price" inputmode="decimal" value="{{ old('price', $service->suggested_price_cents ? number_format($service->suggested_price_cents / 100, 2, ',', '') : '') }}">
             </div>
 
-            <button class="btn" @disabled($slots === [])>Agendar</button>
+            <button class="btn submit" @disabled($slots === [])>Agendar</button>
         </form>
     @endif
+</div>
 @endsection

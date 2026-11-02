@@ -1,0 +1,20 @@
+/*
+ * Login: logo da marca em cima, cartão estreito centralizado. Escopo: body.page-login.
+ */
+.page-login { min-height: 100vh; min-height: 100dvh; }
+.page-login .wrap.narrow {
+  padding-top: calc(var(--space-6) + var(--safe-top));
+  padding-bottom: calc(var(--space-8) + var(--safe-bottom));
+  padding-left: calc(var(--space-4) + var(--safe-left));
+  padding-right: calc(var(--space-4) + var(--safe-right));
+  text-align: center;
+}
+.page-login .login-logo { display: block; width: min(11rem, 55vw); height: auto; margin: 0 auto var(--space-4); }
+.page-login h1 { font-size: var(--text-2xl); }
+.page-login .card { margin-top: var(--space-5); text-align: left; border-top: 4px solid var(--brand); }
+
+@media (min-width: 600px) {
+  .page-login .wrap.narrow { padding-top: calc(var(--space-8) * 2 + var(--safe-top)); }
+  .page-login .login-logo { width: 13rem; }
+}
+.page-login .flash { text-align: left; }

@@ -1,15 +1,18 @@
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/login.css') }}?v={{ filemtime(public_path('css/pages/login.css')) }}">
+@endpush
+@section('title', 'Entrar')
 <!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Entrar · {{ \App\Models\Setting::get('clinic_name') }}</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @include('partials.head', ['defaultTitle' => 'Entrar'])
 </head>
-<body>
-<main class="wrap" style="max-width: 420px; padding-top: 3rem">
+<body class="page-login">
+@php($clinic = \App\Models\Setting::get('clinic_name'))
+<main class="wrap narrow">
+    <img class="login-logo" src="{{ asset('icons/logo-full.png') }}" alt="{{ $clinic }}" width="480" height="392">
     <h1>Entrar no painel</h1>
-    <p class="muted">{{ \App\Models\Setting::get('clinic_name') }}</p>
+    <p class="muted">{{ $clinic }}</p>
     @include('partials.flash')
     <form class="card stack" method="post" action="{{ route('login') }}">
         @csrf

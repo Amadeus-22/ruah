@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 @section('title', 'Meu perfil')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/profile.css') }}?v={{ filemtime(public_path('css/pages/profile.css')) }}">
+@endpush
 @section('content')
+<div class="page-profile">
     <div class="page-head">
         <div>
             <h1>Meu perfil</h1>
@@ -19,7 +23,7 @@
             <div><label for="p-email">E-mail de acesso</label><input type="email" id="p-email" name="email" value="{{ old('email', $user->email) }}" required></div>
             @error('email')<div class="field-error">{{ $message }}</div>@enderror
 
-            <h3 style="margin-top:1.2rem">Trocar senha</h3>
+            <h3 class="mt-5">Trocar senha</h3>
             <p class="muted small">Deixe em branco para manter a atual.</p>
             <div class="row">
                 <div class="grow"><label for="p-pass">Nova senha</label><input type="password" id="p-pass" name="password" autocomplete="new-password"></div>
@@ -42,4 +46,5 @@
             @endif
         </section>
     </form>
+</div>
 @endsection

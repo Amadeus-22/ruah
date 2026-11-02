@@ -1,0 +1,54 @@
+/*
+ * Pacientes: lista (cartões no celular, colunas a partir de 900px) e ficha do paciente
+ * (uma coluna no celular, duas a partir de 900px). Escopo: .page-patients.
+ */
+
+/* ── Lista ────────────────────────────────────────────────────────────── */
+.page-patients .patient-list { padding: 0; overflow: hidden; }
+.page-patients .patient-list ul { list-style: none; margin: 0; padding: 0; }
+.page-patients .patient-list li + li { border-top: 1px solid var(--line); }
+.page-patients .patient-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-3);
+  align-items: center; min-height: var(--touch); padding: var(--space-3) var(--space-4);
+  color: var(--ink); text-decoration: none;
+}
+.page-patients a.patient-row:hover { background: var(--surface-muted); color: var(--ink); }
+.page-patients .who { display: flex; align-items: center; gap: var(--space-3); min-width: 0; grid-column: 1 / -1; }
+.page-patients .who strong { overflow-wrap: anywhere; color: var(--brand-strong); }
+.page-patients .guardian, .page-patients .phone { color: var(--ink-muted); font-size: var(--text-sm); padding-left: calc(36px + var(--space-3)); }
+.page-patients .guardian { grid-column: 1 / -1; }
+.page-patients .phone { font-variant-numeric: tabular-nums; }
+.page-patients .count { justify-self: end; font-size: var(--text-sm); color: var(--ink-muted); }
+.page-patients .count strong { color: var(--ink); }
+.page-patients .patient-row.patient-head { display: none; }
+
+/* ── Ficha ────────────────────────────────────────────────────────────── */
+.page-patients .package { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2) var(--space-4); }
+.page-patients .remaining strong { font-size: var(--text-xl); color: var(--brand); line-height: 1; font-variant-numeric: tabular-nums; }
+.page-patients .history { padding-block: var(--space-1); }
+.page-patients .visit {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-1) var(--space-3);
+  padding-block: var(--space-3);
+}
+.page-patients .visit + .visit { border-top: 1px solid var(--line); }
+.page-patients .visit-main { display: flex; flex-direction: column; min-width: 0; }
+.page-patients .visit-main strong { font-variant-numeric: tabular-nums; }
+.page-patients .visit-side { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); }
+
+@media (min-width: 900px) {
+  .page-patients .patient-head,
+  .page-patients .patient-row { grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1.3fr) 7rem; }
+  .page-patients .patient-row.patient-head {
+    display: grid; min-height: 0; padding-block: var(--space-2);
+    background: var(--surface-muted); border-bottom: 1px solid var(--line);
+    font-family: var(--font-label); font-size: var(--text-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted);
+  }
+  .page-patients .who, .page-patients .guardian { grid-column: auto; }
+  .page-patients .guardian, .page-patients .phone { padding-left: 0; }
+  .page-patients .lbl { display: none; }
+  .page-patients .count { justify-self: start; }
+
+  .page-patients .patient-cols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+  .page-patients .form-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page-patients .history { max-height: 70vh; overflow-y: auto; }
+}

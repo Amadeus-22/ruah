@@ -16,7 +16,7 @@
         @isset($showDate)<div class="muted small">{{ $appointment->starts_at->format('d/m') }}</div>@endisset
     </div>
     <div class="body">
-        <div class="row between">
+        <div class="row between items-start">
             <a href="{{ route('admin.patients.show', $appointment->patient) }}"><strong>{{ $appointment->patient->patient_name }}</strong></a>
             <span class="badge {{ $s->value }}">{{ $s->label() }}</span>
         </div>
@@ -52,9 +52,9 @@
         </div>
 
         @unless ($appointment->patientPackage || $s === AppointmentStatus::Canceled)
-            <details style="margin-top:.5rem">
+            <details class="mt-2">
                 <summary class="small">Valor e pagamento</summary>
-                <form class="row" method="post" action="{{ route('admin.appointments.update', $appointment) }}" style="margin-top:.5rem">
+                <form class="row items-end mt-2" method="post" action="{{ route('admin.appointments.update', $appointment) }}">
                     @csrf @method('put')
                     <div class="grow">
                         <label for="price-{{ $appointment->id }}">Valor combinado</label>

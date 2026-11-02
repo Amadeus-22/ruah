@@ -1,0 +1,11 @@
+/*
+ * Novo horário: filtros e dados em .form-grid; horários como botões de rádio grandes.
+ * Escopo: .page-appt-new.
+ */
+.page-appt-new .slot-field { border: 0; margin: 0; padding: 0; min-width: 0; }
+.page-appt-new .slot-field legend { padding: 0; margin-bottom: var(--space-2); font-weight: 600; font-size: var(--text-sm); }
+.page-appt-new .submit { width: 100%; }
+
+@media (min-width: 600px) {
+  .page-appt-new .submit { width: auto; min-width: 12rem; }
+}

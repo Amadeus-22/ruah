@@ -1,0 +1,13 @@
+/*
+ * Financeiro (admin.finance): month tools, totals and the entry cards.
+ * Record forms use .fields from management.css. Scoped to .page-finance.
+ */
+.page-finance .month-tools { gap: var(--space-2); }
+.page-finance .month-tools strong { min-width: 8.5rem; text-align: center; }
+.page-finance .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.page-finance .stat strong { font-family: var(--font-display); font-size: var(--text-2xl); font-variant-numeric: tabular-nums; }
+.page-finance .entry-head > div:first-child { min-width: 0; flex: 1 1 12rem; }
+.page-finance .entry-badges { gap: var(--space-1); }
+@media (min-width: 900px) {
+  .page-finance .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

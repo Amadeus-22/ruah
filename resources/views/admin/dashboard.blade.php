@@ -1,11 +1,17 @@
 @extends('layouts.admin')
 @section('title', 'Agenda do dia')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/agenda.css') }}?v={{ filemtime(public_path('css/pages/agenda.css')) }}">
+@endpush
 @section('content')
-    <div class="row between">
-        <h1>Agenda do dia</h1>
+<div class="page-agenda">
+    <div class="page-head">
+        <div>
+            <h1>Agenda do dia</h1>
+            <p class="muted small">Link para pacientes: <a class="public-link" href="{{ route('public.index') }}">{{ route('public.index') }}</a></p>
+        </div>
         <a class="btn sm" href="{{ route('admin.appointments.create') }}">Novo horário</a>
     </div>
-    <p class="muted small">Link para pacientes: <a href="{{ route('public.index') }}">{{ route('public.index') }}</a></p>
 
     @if ($pending->isNotEmpty())
         <h2>Pedidos aguardando confirmação ({{ $pending->count() }})</h2>
@@ -25,7 +31,7 @@
         <h2>Lembretes para enviar ({{ $reminders->count() }})</h2>
         <div class="card">
             @foreach ($reminders as $appointment)
-                <div class="row between" style="padding:.35rem 0">
+                <div class="row between py-2 reminder">
                     <span><strong>{{ $appointment->patient->patient_name }}</strong>
                         <span class="muted small">{{ $appointment->starts_at->isToday() ? 'hoje' : 'amanhã' }} às {{ $appointment->starts_at->format('H:i') }} · resp. {{ $appointment->patient->guardian_name }}</span></span>
                     <form class="inline" method="post" target="_blank" action="{{ route('admin.appointments.remind', $appointment) }}">@csrf<button class="btn sm">Enviar pelo WhatsApp</button></form>
@@ -48,7 +54,7 @@
     <h2>Próximos 8 dias</h2>
     @forelse ($upcoming as $date => $items)
         @php($day = \Carbon\CarbonImmutable::parse($date))
-        <div class="day-title">
+        <div class="section-label">
             {{ $day->isSameDay($today) ? 'Hoje' : ($day->isSameDay($today->addDay()) ? 'Amanhã' : $day->translatedFormat('l')) }},
             {{ $day->translatedFormat('j \d\e F') }}
         </div>
@@ -58,4 +64,5 @@
     @empty
         <div class="card muted">Nenhum atendimento confirmado nos próximos dias.</div>
     @endforelse
+</div>
 @endsection
