@@ -54,8 +54,8 @@
                 @foreach ($trend as $t)
                     <div class="bar-col">
                         <div class="bar-stack" title="{{ $t['label'] }}: {{ $money($t['received']) }} recebido, {{ $money($t['due']) }} a receber">
-                            <span class="bar due" style="height: {{ round($t['due'] / $max * 100, 1) }}%"></span>
-                            <span class="bar received" style="height: {{ round($t['received'] / $max * 100, 1) }}%"></span>
+                            <span class="bar due" style="--h: {{ round($t['due'] / $max * 100, 1) }}%"></span>
+                            <span class="bar received" style="--h: {{ round($t['received'] / $max * 100, 1) }}%"></span>
                         </div>
                         <span class="bar-value">@if ($t['received'] > 0)<span class="bar-cur">R$ </span>{{ number_format($t['received'] / 100, 0, ',', '.') }}@endif</span>
                         <span class="bar-label cap">{{ rtrim($t['label'], '.') }}</span>
@@ -69,7 +69,7 @@
             <p class="muted small">Pagamentos do mês por forma.</p>
             @php($top = max(1, $byMethod->max('cents')))
             @forelse ($byMethod as $m)
-                <div class="hbar"><span class="hbar-label">{{ $m['label'] }}</span><div class="hbar-track"><i style="width: {{ round($m['cents'] / $top * 100, 1) }}%"></i></div><strong>{{ $money($m['cents']) }}</strong></div>
+                <div class="hbar"><span class="hbar-label">{{ $m['label'] }}</span><div class="hbar-track"><i style="--w: {{ round($m['cents'] / $top * 100, 1) }}%"></i></div><strong>{{ $money($m['cents']) }}</strong></div>
             @empty
                 <div class="empty">Nenhum pagamento registrado no mês.</div>
             @endforelse
@@ -80,7 +80,7 @@
             <p class="muted small">O que mais gerou receita no mês.</p>
             @php($top = max(1, $byService->max('cents')))
             @forelse ($byService as $sv)
-                <div class="hbar"><span class="hbar-label">{{ $sv['label'] }} <small class="muted">· {{ $sv['count'] }}</small></span><div class="hbar-track"><i class="alt" style="width: {{ round($sv['cents'] / $top * 100, 1) }}%"></i></div><strong>{{ $money($sv['cents']) }}</strong></div>
+                <div class="hbar"><span class="hbar-label">{{ $sv['label'] }} <small class="muted">· {{ $sv['count'] }}</small></span><div class="hbar-track"><i class="alt" style="--w: {{ round($sv['cents'] / $top * 100, 1) }}%"></i></div><strong>{{ $money($sv['cents']) }}</strong></div>
             @empty
                 <div class="empty">Nada lançado no mês.</div>
             @endforelse

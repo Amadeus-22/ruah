@@ -45,7 +45,7 @@
   }
   .page-patients .who, .page-patients .guardian { grid-column: auto; }
   .page-patients .guardian, .page-patients .phone { padding-left: 0; }
-  .page-patients .lbl { display: none; }
+  .page-patients .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .page-patients .count { justify-self: start; }
 
   .page-patients .patient-cols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }

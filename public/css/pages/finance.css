@@ -11,3 +11,4 @@
 @media (min-width: 900px) {
   .page-finance .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+.page-finance .month-tools .btn { min-width: var(--touch); justify-content: center; }

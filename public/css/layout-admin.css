@@ -47,7 +47,7 @@ body.admin { background: var(--bg); }
 .topbar .icon-btn:hover { background: var(--surface-muted); color: var(--brand); }
 .topbar .icon-btn svg { width: 22px; height: 22px; }
 
-.topbar-brand { display: flex; align-items: center; gap: var(--space-2); min-width: 0; color: var(--ink); text-decoration: none; }
+.topbar-brand { display: flex; align-items: center; min-height: var(--touch); min-width: var(--touch); gap: var(--space-2); min-width: 0; color: var(--ink); text-decoration: none; }
 .topbar-brand img { width: 36px; height: 36px; flex: none; }
 .topbar-brand span { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -74,11 +74,6 @@ body.admin { background: var(--bg); }
 .account-card { display: flex; gap: var(--space-3); align-items: center; padding: var(--space-4); background: var(--brand); color: var(--brand-ink); }
 .account-card strong { display: block; }
 .account-card small { display: block; font-size: var(--text-xs); word-break: break-all; }
-.account-card .pill {
-  display: inline-block; margin-top: var(--space-1); padding: 0 var(--space-2);
-  border: 1px solid currentColor; border-radius: var(--radius-pill);
-  font-family: var(--font-label); font-size: var(--text-xs); letter-spacing: .06em;
-}
 .account-clinic { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); color: var(--ink-muted); border-bottom: 1px solid var(--line); }
 .account-clinic img { width: 20px; height: 20px; }
 .account-menu a, .account-menu button {

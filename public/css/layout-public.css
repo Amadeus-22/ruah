@@ -36,7 +36,7 @@ footer.note {
   color: var(--ink-muted); font-size: var(--text-sm); text-align: center;
 }
 footer.note div { margin-top: var(--space-1); }
-footer.note a { display: inline-block; padding-block: var(--space-2); color: var(--brand); }
+footer.note a { display: inline-flex; align-items: center; min-height: var(--touch); color: var(--brand); }
 
 @media (min-width: 600px) {
   body.public .wrap { padding-left: calc(var(--space-6) + var(--safe-left)); padding-right: calc(var(--space-6) + var(--safe-right)); }

@@ -85,7 +85,7 @@
     <div class="content">
         <header class="topbar">
             <button class="icon-btn panel-toggle" type="button" data-panel-toggle aria-controls="panel" aria-label="Mostrar ou esconder o menu">{!! Icon::svg('menu') !!}</button>
-            <a class="topbar-brand" href="{{ route('admin.dashboard') }}">
+            <a class="topbar-brand" href="{{ route('admin.dashboard') }}" aria-label="{{ $clinic }}">
                 <img src="{{ $symbol }}" alt="" width="36" height="36">
                 <span>{{ $clinic }}</span>
             </a>
@@ -139,14 +139,22 @@
         const root = document.documentElement;
         const mobile = matchMedia('(max-width: 899.98px)');
         const sheetToggles = document.querySelectorAll('.bottomnav [data-panel-toggle]');
+        let lastToggle = null;
         const setSheet = (open) => {
             root.classList.toggle('panel-open', open);
             sheetToggles.forEach((b) => b.setAttribute('aria-expanded', String(open)));
-            if (open) document.querySelector('#panel a, #panel button')?.focus({ preventScroll: true });
+            // The page behind the sheet is unreachable while it is open (keyboard and VoiceOver).
+            document.querySelectorAll('.content, .bottomnav').forEach((el) => { el.inert = open; });
+            if (open) {
+                // wait for the panel to become visible before moving focus into it
+                requestAnimationFrame(() => requestAnimationFrame(() => document.querySelector('#panel a, #panel button')?.focus({ preventScroll: true })));
+            } else if (lastToggle) {
+                lastToggle.focus({ preventScroll: true });
+            }
         };
         // Tela grande: recolhe o painel lateral e lembra a escolha. Celular: abre a folha "Mais".
         document.querySelectorAll('[data-panel-toggle]').forEach((el) => el.addEventListener('click', () => {
-            if (mobile.matches) { setSheet(!root.classList.contains('panel-open')); return; }
+            if (mobile.matches) { lastToggle = el; setSheet(!root.classList.contains('panel-open')); return; }
             root.classList.toggle('panel-closed');
             try { localStorage.setItem('ruah-panel', root.classList.contains('panel-closed') ? 'closed' : 'open'); } catch (e) {}
         }));
