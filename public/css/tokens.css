@@ -1,0 +1,119 @@
+/*
+ * Design tokens: the only place colors, type, spacing and sizes are defined.
+ * Every other stylesheet uses these variables; no hex values outside this file.
+ *
+ * Brand: Pamela Barbosa, Fisioterapeuta Pediátrica (brand kit "TIPOGRAFIA-PALETA-DE-CORES").
+ * Brand colors measured from the kit. Only --green-700 is dark enough for text on white
+ * (5.1:1); rose, sage and lime are for surfaces and accents. The *-ink tones are darker
+ * shades of the same hues for text on those surfaces (all >= 4.5:1).
+ *
+ * Breakpoints (mobile first; custom properties can't be used in media queries, so these
+ * are the agreed values):  sm 600px · md 900px · lg 1200px
+ *   @media (min-width: 600px)   tablet portrait and up
+ *   @media (min-width: 900px)   tablet landscape / desktop: side navigation appears
+ *   @media (min-width: 1200px)  wide desktop
+ */
+:root {
+  /* Brand palette (from the kit) */
+  --lime-300: #b8c97d;
+  --rose-300: #d8b8af;
+  --sage-300: #a1b39f;
+  --green-700: #517664;
+
+  /* Derived shades of the brand hues */
+  --green-800: #3e5c4e;
+  --green-900: #2b3a33;
+  --green-50: #eef3f0;
+  --green-100: #dde8e2;
+  --rose-50: #fbf8f6;
+  --rose-100: #f4e9e5;
+  --rose-ink: #8c5a4e;
+  --lime-100: #eef2dd;
+  --lime-ink: #5e6b2e;
+  --sage-100: #e7ede6;
+
+  /* Semantic colors */
+  --bg: var(--rose-50);
+  --surface: #fff;
+  --surface-muted: var(--green-50);
+  --ink: var(--green-900);
+  --ink-muted: #5a6b63;
+  --line: #e6e0dc;
+  --line-strong: #cfd8d3;
+  --brand: var(--green-700);
+  --brand-strong: var(--green-800);
+  --brand-ink: #fff;
+  --brand-soft: var(--green-100);
+  --accent: var(--rose-300);
+  --accent-soft: var(--rose-100);
+  --accent-ink: var(--rose-ink);
+  --highlight: var(--lime-300);
+  --highlight-soft: var(--lime-100);
+  --highlight-ink: var(--lime-ink);
+  --focus: var(--green-700);
+
+  /* Status (kept distinct from brand so state is never confused with branding) */
+  --ok: #2f6b3f;     --ok-soft: #e3f1e6;
+  --warn: #8a5a00;   --warn-soft: #fbf0d9;
+  --bad: #a3392f;    --bad-soft: #fbe8e5;
+  --info: #2f5f8a;   --info-soft: #e5eef7;
+
+  /* Typography */
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;   /* brand: Gabriola */
+  --font-label: "Josefin Sans", "Avenir Next", "Segoe UI", sans-serif;      /* brand: Caviar Dreams */
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --text-xs: .78rem;
+  --text-sm: .88rem;
+  --text-md: 1rem;
+  --text-lg: 1.15rem;
+  --text-xl: 1.45rem;
+  --text-2xl: 1.85rem;
+  --leading: 1.5;
+
+  /* Spacing scale */
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(43, 58, 51, .06);
+  --shadow-md: 0 8px 24px rgba(43, 58, 51, .08);
+  --shadow-lg: 0 16px 40px rgba(43, 58, 51, .16);
+
+  /* Sizes */
+  --touch: 44px;            /* minimum touch target (Apple HIG) */
+  --rail-w: 72px;
+  --panel-w: 272px;
+  --topbar-h: 64px;
+  --bottomnav-h: 64px;
+  --content-max: 1280px;
+
+  /* Layers */
+  --z-sticky: 20;
+  --z-nav: 30;
+  --z-overlay: 40;
+  --z-toast: 60;
+
+  /* Motion */
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: .18s;
+
+  /* Safe areas (iPhone notch / home indicator in the webview) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0s; }
+}
