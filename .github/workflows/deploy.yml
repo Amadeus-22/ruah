@@ -1,0 +1,48 @@
+name: Deploy
+
+# Sobe para a VPS depois que a CI do main passa. Fica inativo até os secrets existirem:
+# VPS_HOST, VPS_USER, VPS_SSH_KEY (chave privada de deploy) e VPS_KNOWN_HOSTS (saída de ssh-keyscan).
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+    steps:
+      - name: Skip until the VPS is configured
+        if: env.VPS_HOST == ''
+        run: echo "VPS_HOST not set; nothing to deploy."
+
+      - name: Deploy over SSH
+        if: env.VPS_HOST != ''
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          REF: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_deploy "$VPS_USER@$VPS_HOST" "set -e
+            cd ~/ruah
+            git fetch --quiet origin main
+            git checkout --quiet --detach $REF
+            docker compose -f compose.prod.yaml --env-file .env.production up -d --build
+            docker image prune -f
+            for i in \$(seq 30); do curl -fsS -o /dev/null https://\$(grep ^DOMAIN= .env.production | cut -d= -f2)/up && exit 0; sleep 2; done
+            echo 'health check failed' >&2; exit 1"

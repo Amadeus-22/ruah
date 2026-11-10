@@ -1,0 +1,61 @@
+# Produção na VPS:
+#   cp .env.production.example .env.production   (preencher)
+#   docker compose -f compose.prod.yaml --env-file .env.production up -d --build
+#   docker compose -f compose.prod.yaml --env-file .env.production exec app php artisan ruah:usuario <email> <nome>
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      SERVER_NAME: ${DOMAIN}
+      DB_HOST: db
+      DB_PORT: 3306
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - storage:/app/storage
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  backup:
+    image: mysql:8.4
+    restart: unless-stopped
+    entrypoint: ["sh", "/backup.sh"]
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - ./docker/backup.sh:/backup.sh:ro
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  storage:
+  db:
+  caddy_data:
+  caddy_config:
