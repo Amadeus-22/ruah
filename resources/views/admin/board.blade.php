@@ -1,17 +1,21 @@
 @extends('layouts.admin')
 @section('title', 'Quadro')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/board.css') }}?v={{ filemtime(public_path('css/pages/board.css')) }}">
+@endpush
 @section('content')
     @php
         use App\Support\Icon;
         $columns = [
-            'novo' => ['Quer agendar', 'Chegou e ainda não tem horário', 'inbox', '#2f6fd0', $newInquiries->count() + $requested->count(), 'Ninguém esperando resposta', 'Contatos novos e pedidos da página aparecem aqui.'],
-            'aguardando' => ['Aguardando paciente', 'Você respondeu; falta ele decidir', 'hourglass', '#b7791f', $waitingInquiries->count(), 'Nenhum contato aguardando', 'Arraste para cá quem já recebeu as opções de horário.'],
-            'agendado' => ['Agendado', 'Horário confirmado', 'calendar', '#1f7a6d', $confirmed->count(), 'Nenhum horário confirmado', 'Os atendimentos marcados aparecem aqui.'],
-            'realizado' => ['Realizado', 'Últimos 7 dias', 'check', '#1d6b3a', $done->count(), 'Nada realizado na semana', 'Arraste para cá o atendimento que aconteceu.'],
-            'faltou' => ['Faltou', 'Últimos 7 dias', 'x-circle', '#a3271f', $noShow->count(), 'Nenhuma falta na semana', 'Faltas ficam aqui para remarcar.'],
+            'novo' => ['Quer agendar', 'Chegou e ainda não tem horário', 'inbox', 'var(--stage-new)', $newInquiries->count() + $requested->count(), 'Ninguém esperando resposta', 'Contatos novos e pedidos da página aparecem aqui.'],
+            'aguardando' => ['Aguardando paciente', 'Você respondeu; falta ele decidir', 'hourglass', 'var(--stage-waiting)', $waitingInquiries->count(), 'Nenhum contato aguardando', 'Arraste para cá quem já recebeu as opções de horário.'],
+            'agendado' => ['Agendado', 'Horário confirmado', 'calendar', 'var(--stage-booked)', $confirmed->count(), 'Nenhum horário confirmado', 'Os atendimentos marcados aparecem aqui.'],
+            'realizado' => ['Realizado', 'Últimos 7 dias', 'check', 'var(--stage-done)', $done->count(), 'Nada realizado na semana', 'Arraste para cá o atendimento que aconteceu.'],
+            'faltou' => ['Faltou', 'Últimos 7 dias', 'x-circle', 'var(--stage-missed)', $noShow->count(), 'Nenhuma falta na semana', 'Faltas ficam aqui para remarcar.'],
         ];
     @endphp
 
+<div class="page-board">
     <header class="work-head">
         <div class="work-title">
             <span class="work-title-icon">{!! Icon::svg('board') !!}</span>
@@ -73,10 +77,10 @@
                         @endforeach
                     @endif
                     <div class="col-empty">
-                            <span class="col-empty-icon">{!! Icon::svg($icon) !!}</span>
-                            <strong>{{ $emptyTitle }}</strong>
-                            <span>{{ $emptyText }}</span>
-                        </div>
+                        <span class="col-empty-icon">{!! Icon::svg($icon) !!}</span>
+                        <strong>{{ $emptyTitle }}</strong>
+                        <span>{{ $emptyText }}</span>
+                    </div>
                 </div>
                 @if ($key === 'novo')
                     <button class="col-add" type="button" data-new-card="new">{!! Icon::svg('plus-circle') !!} Novo cartão</button>
@@ -95,6 +99,7 @@
     </dialog>
 
     <div class="toast" role="status" aria-live="polite" hidden></div>
+</div>
 @endsection
 
 @push('scripts')

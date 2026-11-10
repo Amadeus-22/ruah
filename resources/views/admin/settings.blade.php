@@ -1,32 +1,41 @@
 @extends('layouts.admin')
 @section('title', 'Configurações')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/management.css') }}?v={{ filemtime(public_path('css/pages/management.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pages/settings.css') }}?v={{ filemtime(public_path('css/pages/settings.css')) }}">
+@endpush
 @section('content')
-    <h1>Configurações</h1>
+<div class="page-settings mgmt">
+    <div class="page-head">
+        <h1>Configurações</h1>
+    </div>
 
     <h2>Horários de atendimento</h2>
     <div class="card">
         @foreach (\App\Models\AvailabilityRule::WEEKDAYS as $weekday => $name)
-            <div class="row" style="padding:.3rem 0; border-bottom:1px solid var(--line)">
-                <strong style="width:5.5rem">{{ $name }}</strong>
-                @forelse ($rules[$weekday] ?? [] as $rule)
-                    <form class="inline" method="post" action="{{ route('admin.rules.remove', $rule) }}">
-                        @csrf @method('delete')
-                        <span class="badge confirmed">{{ substr($rule->starts_at, 0, 5) }}–{{ substr($rule->ends_at, 0, 5) }}
-                            <button style="border:0;background:none;color:inherit;cursor:pointer" aria-label="Remover {{ $name }} {{ substr($rule->starts_at, 0, 5) }}">✕</button></span>
-                    </form>
-                @empty
-                    <span class="muted small">não atende</span>
-                @endforelse
+            <div class="row py-1 border-b weekday">
+                <strong class="w-xs">{{ $name }}</strong>
+                <div class="row grow slots">
+                    @forelse ($rules[$weekday] ?? [] as $rule)
+                        <form class="inline" method="post" action="{{ route('admin.rules.remove', $rule) }}">
+                            @csrf @method('delete')
+                            <span class="badge confirmed slot">{{ substr($rule->starts_at, 0, 5) }}–{{ substr($rule->ends_at, 0, 5) }}
+                                <button class="btn-reset" aria-label="Remover {{ $name }} {{ substr($rule->starts_at, 0, 5) }}">✕</button></span>
+                        </form>
+                    @empty
+                        <span class="muted small">não atende</span>
+                    @endforelse
+                </div>
             </div>
         @endforeach
-        <form class="row" method="post" action="{{ route('admin.rules.add') }}" style="margin-top:.8rem">
+        <form class="fields mt-3" method="post" action="{{ route('admin.rules.add') }}">
             @csrf
             <div class="grow">
                 <label for="weekday">Dia</label>
                 <select id="weekday" name="weekday">@foreach (\App\Models\AvailabilityRule::WEEKDAYS as $weekday => $name)<option value="{{ $weekday }}" @selected($weekday === 1)>{{ $name }}</option>@endforeach</select>
             </div>
-            <div style="width:8rem"><label for="r-start">Das</label><input type="time" id="r-start" name="starts_at" value="08:00" required></div>
-            <div style="width:8rem"><label for="r-end">Até</label><input type="time" id="r-end" name="ends_at" value="12:00" required></div>
+            <div class="w-md"><label for="r-start">Das</label><input type="time" id="r-start" name="starts_at" value="08:00" required></div>
+            <div class="w-md"><label for="r-end">Até</label><input type="time" id="r-end" name="ends_at" value="12:00" required></div>
             <button class="btn sm">Adicionar</button>
         </form>
     </div>
@@ -35,14 +44,14 @@
     <p class="muted small">Compromissos pessoais, folgas, férias. O sistema não lê a agenda do celular; é aqui que você fecha um horário.</p>
     <div class="card">
         @forelse ($blocks as $block)
-            <div class="row between" style="padding:.3rem 0">
+            <div class="row between py-1">
                 <span>{{ $block->starts_at->format('d/m H:i') }} até {{ $block->ends_at->format('d/m H:i') }} <span class="muted">{{ $block->reason }}</span></span>
                 <form class="inline" method="post" action="{{ route('admin.blocks.remove', $block) }}">@csrf @method('delete')<button class="btn sm quiet">Remover</button></form>
             </div>
         @empty
             <p class="muted">Nenhum bloqueio futuro.</p>
         @endforelse
-        <form class="row" method="post" action="{{ route('admin.blocks.add') }}" style="margin-top:.8rem">
+        <form class="fields mt-3" method="post" action="{{ route('admin.blocks.add') }}">
             @csrf
             <div class="grow"><label for="b-start">Início</label><input type="datetime-local" id="b-start" name="starts_at" required></div>
             <div class="grow"><label for="b-end">Fim</label><input type="datetime-local" id="b-end" name="ends_at" required></div>
@@ -86,4 +95,5 @@
         <label class="check"><input type="checkbox" name="no_show_uses_session" value="1" @checked($settings['no_show_uses_session'] === '1')> <span>Falta desconta uma sessão do pacote</span></label>
         <div><button class="btn sm">Salvar</button></div>
     </form>
+</div>
 @endsection

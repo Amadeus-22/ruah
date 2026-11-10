@@ -1,0 +1,84 @@
+/*
+ * Visão geral (admin.overview): month switcher, KPI grid, charts and owing list.
+ * Scoped to .page-overview. Mobile first: 600 / 900 / 1200 px.
+ */
+
+/* ── Month switcher ────────────────────────────────────────────────────── */
+.page-overview .month-nav {
+  display: flex; align-items: center; gap: var(--space-1);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md);
+  padding: .15rem var(--space-1);
+}
+.page-overview .month-nav .icon-btn { width: var(--touch); height: var(--touch); font-size: var(--text-xl); }
+.page-overview .month-nav strong { min-width: 8.5rem; text-align: center; }
+
+/* ── KPI grid: 1 column, 2 from 600px, 4 from 900px (main tile spans 2) ── */
+.page-overview .kpis { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); margin-bottom: var(--space-4); }
+.page-overview .kpi-main strong { font-family: var(--font-display); font-size: var(--text-2xl); }
+@media (min-width: 600px) {
+  .page-overview .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page-overview .kpi-main { grid-column: span 2; }
+}
+@media (min-width: 900px) {
+  .page-overview .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+  .page-overview .kpi-main strong { font-size: 2.4rem; }
+}
+
+/* ── Dashboard cards ───────────────────────────────────────────────────── */
+.page-overview .dash-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+.page-overview .dash-grid .card { margin: 0; min-width: 0; }
+.page-overview .dash-grid h3 { font-family: var(--font-display); font-size: var(--text-lg); }
+.page-overview .chart-card { grid-column: 1 / -1; }
+.page-overview .chart-head { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; align-items: flex-start; }
+@media (min-width: 900px) {
+  .page-overview .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .page-overview .dash-grid h3 { font-size: var(--text-xl); }
+}
+
+/* ── Six-month bar chart (fits 360px: tight gaps, compact labels) ──────── */
+.page-overview .bars {
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-1);
+  height: 12rem; align-items: end; margin-top: var(--space-4);
+}
+.page-overview .bar-col { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); height: 100%; min-width: 0; }
+.page-overview .bar-stack {
+  flex: 1; width: min(2.25rem, 100%); display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;
+  border-bottom: 1px solid var(--line);
+}
+.page-overview .bar { display: block; width: 100%; height: var(--h, 0%); border-radius: var(--radius-sm) var(--radius-sm) 2px 2px; }
+.page-overview .bar.received { background: var(--brand); }
+.page-overview .bar.due { background: var(--accent-ink); } /* same as .sw-warn; 5.7:1 on white */
+.page-overview .bar-value { font-size: var(--text-xs); color: var(--ink-muted); font-variant-numeric: tabular-nums; white-space: nowrap; min-height: 1em; }
+.page-overview .bar-cur { display: none; }
+.page-overview .bar-label { font-family: var(--font-label); font-size: var(--text-xs); letter-spacing: .04em; }
+@media (min-width: 600px) {
+  .page-overview .bars { gap: var(--space-3); height: 14rem; }
+  .page-overview .bar-stack { width: min(3rem, 100%); }
+  .page-overview .bar-value { font-size: var(--text-xs); }
+  .page-overview .bar-cur { display: inline; }
+}
+@media (min-width: 900px) {
+  .page-overview .bars { height: 16rem; }
+  .page-overview .bar-stack { width: min(3.75rem, 100%); }
+  .page-overview .bar-label { font-size: var(--text-sm); }
+}
+
+/* ── Horizontal bars: label + value above the track on mobile ─────────── */
+.page-overview .hbar {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "label value" "track track";
+  gap: var(--space-1) var(--space-3); align-items: center; padding-block: var(--space-2); font-size: var(--text-sm);
+}
+.page-overview .hbar-label { grid-area: label; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.page-overview .hbar strong { grid-area: value; font-variant-numeric: tabular-nums; }
+.page-overview .hbar-track { grid-area: track; height: 10px; background: var(--surface-muted); border-radius: var(--radius-pill); overflow: hidden; }
+.page-overview .hbar-track i { display: block; width: var(--w, 0%); height: 100%; background: var(--brand); border-radius: var(--radius-pill); }
+.page-overview .hbar-track i.alt { background: var(--highlight-ink); }
+@media (min-width: 600px) {
+  .page-overview .hbar { grid-template-columns: minmax(0, 9rem) 1fr auto; grid-template-areas: "label track value"; gap: var(--space-3); }
+}
+
+/* ── Who still owes ────────────────────────────────────────────────────── */
+.page-overview .owing { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-2); border-bottom: 1px solid var(--line); }
+.page-overview .owing:last-child { border-bottom: 0; }
+.page-overview .owing > div { min-width: 0; }
+.page-overview .owing > strong { white-space: nowrap; font-variant-numeric: tabular-nums; }

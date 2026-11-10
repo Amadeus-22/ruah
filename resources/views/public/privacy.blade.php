@@ -1,8 +1,14 @@
 @extends('layouts.public')
 @section('title', 'Privacidade')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/pages/booking.css') }}?v={{ filemtime(public_path('css/pages/booking.css')) }}">
+@endpush
 @section('content')
-    <h1>Como seus dados são usados</h1>
-    <div class="card stack">
+<div class="page-booking">
+    <header class="booking-head">
+        <h1>Como seus dados são usados</h1>
+    </header>
+    <div class="card stack privacy">
         <div>
             <h3>O que é pedido</h3>
             <p>Nome do responsável, nome do paciente, WhatsApp e, se você quiser, uma observação sobre o horário.</p>
@@ -24,5 +30,6 @@
             <p>Você pode pedir para ver, corrigir ou apagar seus dados a qualquer momento, falando diretamente com a profissional.</p>
         </div>
     </div>
-    <p class="small"><a href="{{ route('public.index') }}">← Voltar para o agendamento</a></p>
+    <p class="small"><a class="back" href="{{ route('public.index') }}">← Voltar para o agendamento</a></p>
+</div>
 @endsection

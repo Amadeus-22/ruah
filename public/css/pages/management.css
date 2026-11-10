@@ -1,0 +1,23 @@
+/*
+ * Shared by the practice-management pages that edit records in stacked card forms
+ * (Financeiro, Serviços e pacotes, Configurações). Scoped to .mgmt on the page root.
+ *
+ * .fields: the inputs of one record. Mobile: a 2-column grid where every field takes
+ * the full row except the short ones (.w-sm/.w-md/.w-lg) and checkboxes, which pair up;
+ * the submit button is full width (or pairs with a checkbox right before it).
+ * From 600px: one wrapping row aligned on the input baseline, short fields keep the
+ * base utility widths.
+ */
+.mgmt .fields {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3); align-items: end;
+}
+.mgmt .fields > * { grid-column: 1 / -1; min-width: 100%; } /* min-width beats the .w-* widths */
+.mgmt .fields > :is(.w-sm, .w-md, .w-lg, .check),
+.mgmt .fields > .check + .btn { grid-column: auto; }
+.mgmt .fields > .check { padding-block: var(--space-2); }
+@media (min-width: 600px) {
+  .mgmt .fields { display: flex; flex-wrap: wrap; align-items: flex-end; }
+  .mgmt .fields > * { min-width: 0; }
+  .mgmt .fields > :not(.grow) { flex: none; }
+}
