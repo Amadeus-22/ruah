@@ -74,7 +74,6 @@
                 <a href="{{ route($route) }}" @class(['on' => $isOn($patterns)]) @if ($isOn($patterns)) aria-current="page" @endif>{!! Icon::svg($icon) !!}<span>{{ $label }}</span></a>
             @endforeach
         @endforeach
-        <a href="{{ route('public.index') }}" target="_blank" rel="noopener">{!! Icon::svg('external') !!}<span>Página dos pacientes</span></a>
         <div class="spacer"></div>
         <form method="post" action="{{ route('logout') }}">@csrf
             <button class="panel-link">{!! Icon::svg('logout') !!}<span>Sair</span></button>
@@ -93,7 +92,6 @@
             <div class="topbar-actions">
                 <a class="icon-btn" href="{{ route('admin.appointments.create') }}" title="Novo horário" aria-label="Novo horário">{!! Icon::svg('plus-circle') !!}</a>
                 <a class="icon-btn" href="{{ route('admin.agenda') }}" title="Agenda do dia" aria-label="Agenda do dia">{!! Icon::svg('calendar') !!}</a>
-                <a class="icon-btn" href="{{ route('public.index') }}" target="_blank" rel="noopener" title="Página dos pacientes" aria-label="Página dos pacientes">{!! Icon::svg('external') !!}</a>
 
                 <details class="account">
                     <summary aria-label="Menu da conta"><x-avatar :user="$user" :size="36" />{!! Icon::svg('chevron-down', 'caret') !!}</summary>

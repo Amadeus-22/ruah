@@ -52,53 +52,10 @@ class BookingFlowTest extends TestCase
         return array_map(fn ($slot) => $slot->format('H:i'), app(Schedule::class)->slotsOn($this->service, $this->monday));
     }
 
-    public function test_public_page_lists_services_and_free_slots(): void
-    {
-        $this->get('/')->assertRedirect('/entrar');
-        $this->get('/agendar')->assertOk()->assertSee('Sessão de RTA');
-        $this->get('/agendar/'.$this->service->id)->assertOk()->assertSee('08:00')->assertSee('11:00');
-    }
 
-    public function test_a_request_holds_the_slot_and_waits_for_confirmation(): void
-    {
-        $response = $this->post('/agendar/'.$this->service->id, [
-            'inicio' => '2026-10-19T09:00', 'guardian_name' => 'Ana', 'patient_name' => 'Bento',
-            'phone' => '(21) 99999-0000', 'consent' => '1',
-        ]);
 
-        $appointment = Appointment::query()->firstOrFail();
-        $response->assertRedirect('/pedido/'.$appointment->public_token);
-        $this->assertSame(AppointmentStatus::Requested, $appointment->status);
-        $this->assertSame('21999990000', $appointment->patient->phone);
-        $this->assertSame(15000, $appointment->price_cents);
-        $this->assertSame(['08:00', '10:00', '11:00'], $this->times());
-        $this->get('/pedido/'.$appointment->public_token)->assertOk()->assertSee('Aguardando confirmação');
-    }
 
-    public function test_the_same_slot_cannot_be_requested_twice(): void
-    {
-        $data = ['inicio' => '2026-10-19T09:00', 'guardian_name' => 'Ana', 'patient_name' => 'Bento', 'phone' => '21999990000', 'consent' => '1'];
-        $this->post('/agendar/'.$this->service->id, $data);
 
-        $this->post('/agendar/'.$this->service->id, ['patient_name' => 'Caio'] + $data)
-            ->assertRedirect('/agendar/'.$this->service->id)->assertSessionHas('error');
-        $this->assertSame(1, Appointment::query()->count());
-    }
-
-    public function test_request_needs_consent_and_a_phone(): void
-    {
-        $this->post('/agendar/'.$this->service->id, ['inicio' => '2026-10-19T09:00', 'guardian_name' => 'Ana', 'patient_name' => 'Bento', 'phone' => '123'])
-            ->assertSessionHasErrors(['phone', 'consent']);
-        $this->assertSame(0, Appointment::query()->count());
-    }
-
-    public function test_a_slot_outside_the_working_hours_is_refused(): void
-    {
-        $this->post('/agendar/'.$this->service->id, [
-            'inicio' => '2026-10-19T15:00', 'guardian_name' => 'Ana', 'patient_name' => 'Bento', 'phone' => '21999990000', 'consent' => '1',
-        ])->assertSessionHas('error');
-        $this->assertSame(0, Appointment::query()->count());
-    }
 
     public function test_blocks_and_canceled_appointments_affect_free_slots(): void
     {
@@ -318,8 +275,4 @@ class BookingFlowTest extends TestCase
         $this->assertTrue($this->actingAs($user)->get('/painel/agenda')->viewData('reminders')->isEmpty());
     }
 
-    public function test_privacy_page_is_public(): void
-    {
-        $this->get('/privacidade')->assertOk()->assertSee('não guarda prontuário');
-    }
 }

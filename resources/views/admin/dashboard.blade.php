@@ -8,7 +8,6 @@
     <div class="page-head">
         <div>
             <h1>Agenda do dia</h1>
-            <p class="muted small">Link para pacientes: <a class="public-link" href="{{ route('public.index') }}">{{ route('public.index') }}</a></p>
         </div>
         <a class="btn sm" href="{{ route('admin.appointments.create') }}">Novo horário</a>
     </div>
