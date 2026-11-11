@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 // O endereço principal abre sempre o login do painel.
 Route::redirect('/', '/entrar');
 
-
 // Agenda para o celular assinar; o código no link é o que dá acesso.
 Route::get('/agenda/{token}.ics', CalendarFeedController::class)->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('calendar.feed');
 

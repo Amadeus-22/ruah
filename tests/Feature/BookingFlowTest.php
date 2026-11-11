@@ -52,11 +52,6 @@ class BookingFlowTest extends TestCase
         return array_map(fn ($slot) => $slot->format('H:i'), app(Schedule::class)->slotsOn($this->service, $this->monday));
     }
 
-
-
-
-
-
     public function test_blocks_and_canceled_appointments_affect_free_slots(): void
     {
         Block::create(['starts_at' => $this->monday->setTime(8, 0), 'ends_at' => $this->monday->setTime(9, 30)]);
@@ -274,5 +269,4 @@ class BookingFlowTest extends TestCase
 
         $this->assertTrue($this->actingAs($user)->get('/painel/agenda')->viewData('reminders')->isEmpty());
     }
-
 }
