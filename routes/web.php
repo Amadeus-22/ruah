@@ -14,8 +14,11 @@ use App\Http\Controllers\CalendarFeedController;
 use App\Http\Controllers\PublicBookingController;
 use Illuminate\Support\Facades\Route;
 
+// O endereço principal abre sempre o login do painel.
+Route::redirect('/', '/entrar');
+
 // Página pública: o link que vai na bio do Instagram e no WhatsApp.
-Route::get('/', [PublicBookingController::class, 'index'])->name('public.index');
+Route::get('/agendar', [PublicBookingController::class, 'index'])->name('public.index');
 Route::get('/agendar/{service}', [PublicBookingController::class, 'slots'])->name('public.slots');
 Route::get('/agendar/{service}/dados', [PublicBookingController::class, 'form'])->name('public.form');
 Route::post('/agendar/{service}', [PublicBookingController::class, 'store'])->middleware('throttle:10,1')->name('public.store');

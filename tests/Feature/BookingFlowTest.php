@@ -54,7 +54,8 @@ class BookingFlowTest extends TestCase
 
     public function test_public_page_lists_services_and_free_slots(): void
     {
-        $this->get('/')->assertOk()->assertSee('Sessão de RTA');
+        $this->get('/')->assertRedirect('/entrar');
+        $this->get('/agendar')->assertOk()->assertSee('Sessão de RTA');
         $this->get('/agendar/'.$this->service->id)->assertOk()->assertSee('08:00')->assertSee('11:00');
     }
 
