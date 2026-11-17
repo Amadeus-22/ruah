@@ -10,7 +10,7 @@ It runs in production for a real respiratory physiotherapy practice.
 
 *Ruah* (רוּחַ) is the Hebrew word for breath, as in Genesis 2:7.
 
-![Triage board](docs/screenshots/board.png)
+![Triage board: contacts move from "wants to book" to "done" as cards](docs/screenshots/board.png)
 
 ## The problem
 
@@ -39,7 +39,13 @@ comments that describe business rules are in Portuguese for the same reason.
 | Phone calendar | A read-only iCalendar feed behind a secret, revocable link, for the phone's calendar app to subscribe to. |
 | Availability | Weekly working hours, one-off blocks, buffer between patients. |
 
-<img src="docs/screenshots/finance.png" alt="Finance page" width="70%">
+| Day agenda | New appointment |
+|---|---|
+| ![Day agenda with a request to confirm, a reminder to send and a package running out](docs/screenshots/agenda.png) | ![New appointment form with the free slots for the chosen day](docs/screenshots/appointment-form.png) |
+
+<img src="docs/screenshots/finance.png" alt="Finance page: received, owed and expected for the month, with payment method and invoice number per entry" width="70%">
+
+Screenshots use the fictional patients from `DemoSeeder`.
 
 ## How it is built
 
